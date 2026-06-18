@@ -12,14 +12,27 @@ _ALL_VOICES = [
     ("roa/fr-CH", "♂  eSpeak · Suisse",                  "M"),
 ]
 
+import os
+import shutil
+
 def _espeak_bin() -> str:
     """Return first working espeak-ng binary path."""
     candidates = [
         "espeak-ng",
-        "/opt/homebrew/bin/espeak-ng",   # macOS Apple Silicon
-        "/usr/local/bin/espeak-ng",       # macOS Intel
+        "espeak",
+        "/opt/homebrew/bin/espeak-ng",    # macOS Apple Silicon (Homebrew)
+        "/opt/homebrew/bin/espeak",
+        "/usr/local/bin/espeak-ng",        # macOS Intel (Homebrew)
+        "/usr/local/bin/espeak",
         "/usr/bin/espeak-ng",
+        "/usr/bin/espeak",
     ]
+    # Also check $PATH via shutil
+    for name in ("espeak-ng", "espeak"):
+        found = shutil.which(name)
+        if found and found not in candidates:
+            candidates.insert(0, found)
+
     for cmd in candidates:
         try:
             r = subprocess.run([cmd, "--version"], capture_output=True, timeout=4)
@@ -27,18 +40,25 @@ def _espeak_bin() -> str:
                 return cmd
         except Exception:
             pass
-    return "espeak-ng"  # fallback — will fail at synthesis time with a clear error
+    return ""
 
 ESPEAK = _espeak_bin()
 
 def _voice_available(voice_id: str) -> bool:
+    if not ESPEAK:
+        return False
     try:
-        tmp = tempfile.NamedTemporaryFile(delete=True, suffix=".wav")
+        # delete=False so the file exists when espeak-ng writes to it
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
         tmp.close()
         r = subprocess.run(
             [ESPEAK, "-v", voice_id, "-w", tmp.name, "test"],
             capture_output=True, timeout=6,
         )
+        try:
+            os.unlink(tmp.name)
+        except OSError:
+            pass
         return r.returncode == 0
     except Exception:
         return False
@@ -47,11 +67,19 @@ VOICES       = [(vid, label, g) for vid, label, g in _ALL_VOICES if _voice_avail
 VOICE_MAP    = {label: vid   for vid, label, _ in VOICES}
 VOICE_LABELS = [label        for _,   label, _ in VOICES]
 
+if not ESPEAK:
+    raise RuntimeError(
+        "espeak-ng 바이너리를 찾을 수 없습니다.\n"
+        "macOS: brew install espeak-ng\n"
+        "Linux: sudo apt install espeak-ng\n\n"
+        f"설치 후 'which espeak-ng' 로 경로를 확인하세요."
+    )
+
 if not VOICE_LABELS:
     raise RuntimeError(
-        f"사용 가능한 프랑스어 음성이 없습니다.\n"
-        f"espeak-ng 경로: {ESPEAK}\n"
-        f"설치 확인: brew install espeak-ng  (macOS) / apt install espeak-ng  (Linux)"
+        f"espeak-ng({ESPEAK})는 있지만 사용 가능한 프랑스어 음성이 없습니다.\n"
+        "macOS: brew install espeak-ng\n"
+        "Linux: sudo apt install espeak-ng mbrola mbrola-fr1 mbrola-fr2 mbrola-fr3 mbrola-fr4"
     )
 
 SAMPLES = [
@@ -332,11 +360,13 @@ def synthesize(text: str, voice_label: str, rate: int, pitch: int, volume: int) 
     voice_id = VOICE_MAP[voice_label]
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     tmp.close()
-    subprocess.run(
+    result = subprocess.run(
         [ESPEAK, "-v", voice_id, "-s", str(rate), "-p", str(pitch),
          "-a", str(volume), "-w", tmp.name, text.strip()],
-        check=True, capture_output=True,
+        capture_output=True,
     )
+    if result.returncode != 0:
+        raise gr.Error(f"음성 생성 실패: {result.stderr.decode(errors='replace')}")
     return tmp.name
 
 # ── UI ───────────────────────────────────────────────────────────────────────
