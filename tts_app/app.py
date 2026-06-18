@@ -2,16 +2,27 @@ import subprocess
 import tempfile
 import gradio as gr
 
-VOICES = [
-    ("mb-fr1", "♂  FR-1 · Homme naturel", "M"),
-    ("mb-fr2", "♀  FR-2 · Femme naturelle", "F"),
-    ("mb-fr3", "♂  FR-3 · Homme profond", "M"),
-    ("mb-fr4", "♀  FR-4 · Femme douce", "F"),
-    ("roa/fr",    "♂  eSpeak · France", "M"),
-    ("roa/fr-BE", "♂  eSpeak · Belgique", "M"),
-    ("roa/fr-CH", "♂  eSpeak · Suisse", "M"),
+_ALL_VOICES = [
+    ("mb-fr1",    "♂  FR-1 · Homme naturel (MBROLA)",    "M"),
+    ("mb-fr2",    "♀  FR-2 · Femme naturelle (MBROLA)",  "F"),
+    ("mb-fr3",    "♂  FR-3 · Homme profond (MBROLA)",    "M"),
+    ("mb-fr4",    "♀  FR-4 · Femme douce (MBROLA)",      "F"),
+    ("roa/fr",    "♂  eSpeak · France",                  "M"),
+    ("roa/fr-BE", "♂  eSpeak · Belgique",                "M"),
+    ("roa/fr-CH", "♂  eSpeak · Suisse",                  "M"),
 ]
 
+def _voice_available(voice_id: str) -> bool:
+    try:
+        r = subprocess.run(
+            ["espeak-ng", "-v", voice_id, "--ipa", "test"],
+            capture_output=True, timeout=4,
+        )
+        return r.returncode == 0
+    except Exception:
+        return False
+
+VOICES       = [(vid, label, g) for vid, label, g in _ALL_VOICES if _voice_available(vid)]
 VOICE_MAP    = {label: vid   for vid, label, _ in VOICES}
 VOICE_LABELS = [label        for _,   label, _ in VOICES]
 
