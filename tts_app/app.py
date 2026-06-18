@@ -313,7 +313,7 @@ def synthesize(text: str, voice_label: str, rate: int, pitch: int, volume: int) 
 
 # ── UI ───────────────────────────────────────────────────────────────────────
 
-with gr.Blocks(title="🌊 French TTS") as demo:
+with gr.Blocks(title="🌊 French TTS", css=CSS) as demo:
 
     # ── Header ──────────────────────────────────────────────────────────────
     gr.HTML("""
@@ -398,4 +398,4 @@ with gr.Blocks(title="🌊 French TTS") as demo:
     text_input.submit(fn=synthesize, inputs=inputs, outputs=audio_output)
 
 if __name__ == "__main__":
-    demo.launch(css=CSS)
+    demo.launch()
