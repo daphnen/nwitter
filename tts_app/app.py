@@ -12,11 +12,32 @@ _ALL_VOICES = [
     ("roa/fr-CH", "♂  eSpeak · Suisse",                  "M"),
 ]
 
+def _espeak_bin() -> str:
+    """Return first working espeak-ng binary path."""
+    candidates = [
+        "espeak-ng",
+        "/opt/homebrew/bin/espeak-ng",   # macOS Apple Silicon
+        "/usr/local/bin/espeak-ng",       # macOS Intel
+        "/usr/bin/espeak-ng",
+    ]
+    for cmd in candidates:
+        try:
+            r = subprocess.run([cmd, "--version"], capture_output=True, timeout=4)
+            if r.returncode == 0:
+                return cmd
+        except Exception:
+            pass
+    return "espeak-ng"  # fallback — will fail at synthesis time with a clear error
+
+ESPEAK = _espeak_bin()
+
 def _voice_available(voice_id: str) -> bool:
     try:
+        tmp = tempfile.NamedTemporaryFile(delete=True, suffix=".wav")
+        tmp.close()
         r = subprocess.run(
-            ["espeak-ng", "-v", voice_id, "--ipa", "test"],
-            capture_output=True, timeout=4,
+            [ESPEAK, "-v", voice_id, "-w", tmp.name, "test"],
+            capture_output=True, timeout=6,
         )
         return r.returncode == 0
     except Exception:
@@ -25,6 +46,13 @@ def _voice_available(voice_id: str) -> bool:
 VOICES       = [(vid, label, g) for vid, label, g in _ALL_VOICES if _voice_available(vid)]
 VOICE_MAP    = {label: vid   for vid, label, _ in VOICES}
 VOICE_LABELS = [label        for _,   label, _ in VOICES]
+
+if not VOICE_LABELS:
+    raise RuntimeError(
+        f"사용 가능한 프랑스어 음성이 없습니다.\n"
+        f"espeak-ng 경로: {ESPEAK}\n"
+        f"설치 확인: brew install espeak-ng  (macOS) / apt install espeak-ng  (Linux)"
+    )
 
 SAMPLES = [
     "Bonjour, comment allez-vous aujourd'hui ?",
@@ -305,7 +333,7 @@ def synthesize(text: str, voice_label: str, rate: int, pitch: int, volume: int) 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     tmp.close()
     subprocess.run(
-        ["espeak-ng", "-v", voice_id, "-s", str(rate), "-p", str(pitch),
+        [ESPEAK, "-v", voice_id, "-s", str(rate), "-p", str(pitch),
          "-a", str(volume), "-w", tmp.name, text.strip()],
         check=True, capture_output=True,
     )
@@ -313,7 +341,7 @@ def synthesize(text: str, voice_label: str, rate: int, pitch: int, volume: int) 
 
 # ── UI ───────────────────────────────────────────────────────────────────────
 
-with gr.Blocks(title="🌊 French TTS", css=CSS) as demo:
+with gr.Blocks(title="🌊 French TTS") as demo:
 
     # ── Header ──────────────────────────────────────────────────────────────
     gr.HTML("""
@@ -398,4 +426,4 @@ with gr.Blocks(title="🌊 French TTS", css=CSS) as demo:
     text_input.submit(fn=synthesize, inputs=inputs, outputs=audio_output)
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(css=CSS)
