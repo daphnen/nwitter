@@ -1,86 +1,20 @@
-import subprocess
+import asyncio
 import tempfile
 import gradio as gr
+import edge_tts
 
-_ALL_VOICES = [
-    ("mb-fr1",    "♂  FR-1 · Homme naturel (MBROLA)",    "M"),
-    ("mb-fr2",    "♀  FR-2 · Femme naturelle (MBROLA)",  "F"),
-    ("mb-fr3",    "♂  FR-3 · Homme profond (MBROLA)",    "M"),
-    ("mb-fr4",    "♀  FR-4 · Femme douce (MBROLA)",      "F"),
-    ("roa/fr",    "♂  eSpeak · France",                  "M"),
-    ("roa/fr-BE", "♂  eSpeak · Belgique",                "M"),
-    ("roa/fr-CH", "♂  eSpeak · Suisse",                  "M"),
-]
-
-import os
-import shutil
-
-def _espeak_bin() -> str:
-    """Return first working espeak-ng binary path."""
-    candidates = [
-        "espeak-ng",
-        "espeak",
-        "/opt/homebrew/bin/espeak-ng",    # macOS Apple Silicon (Homebrew)
-        "/opt/homebrew/bin/espeak",
-        "/usr/local/bin/espeak-ng",        # macOS Intel (Homebrew)
-        "/usr/local/bin/espeak",
-        "/usr/bin/espeak-ng",
-        "/usr/bin/espeak",
-    ]
-    # Also check $PATH via shutil
-    for name in ("espeak-ng", "espeak"):
-        found = shutil.which(name)
-        if found and found not in candidates:
-            candidates.insert(0, found)
-
-    for cmd in candidates:
-        try:
-            r = subprocess.run([cmd, "--version"], capture_output=True, timeout=4)
-            if r.returncode == 0:
-                return cmd
-        except Exception:
-            pass
-    return ""
-
-ESPEAK = _espeak_bin()
-
-def _voice_available(voice_id: str) -> bool:
-    if not ESPEAK:
-        return False
-    try:
-        # delete=False so the file exists when espeak-ng writes to it
-        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-        tmp.close()
-        r = subprocess.run(
-            [ESPEAK, "-v", voice_id, "-w", tmp.name, "test"],
-            capture_output=True, timeout=6,
-        )
-        try:
-            os.unlink(tmp.name)
-        except OSError:
-            pass
-        return r.returncode == 0
-    except Exception:
-        return False
-
-VOICES       = [(vid, label, g) for vid, label, g in _ALL_VOICES if _voice_available(vid)]
-VOICE_MAP    = {label: vid   for vid, label, _ in VOICES}
-VOICE_LABELS = [label        for _,   label, _ in VOICES]
-
-if not ESPEAK:
-    raise RuntimeError(
-        "espeak-ng 바이너리를 찾을 수 없습니다.\n"
-        "macOS: brew install espeak-ng\n"
-        "Linux: sudo apt install espeak-ng\n\n"
-        f"설치 후 'which espeak-ng' 로 경로를 확인하세요."
-    )
-
-if not VOICE_LABELS:
-    raise RuntimeError(
-        f"espeak-ng({ESPEAK})는 있지만 사용 가능한 프랑스어 음성이 없습니다.\n"
-        "macOS: brew install espeak-ng\n"
-        "Linux: sudo apt install espeak-ng mbrola mbrola-fr1 mbrola-fr2 mbrola-fr3 mbrola-fr4"
-    )
+VOICES = {
+    "♀  Denise · 자연스러운 (추천)":  "fr-FR-DeniseNeural",
+    "♂  Henri · 자연스러운 (추천)":   "fr-FR-HenriNeural",
+    "♀  Brigitte · 차분한":           "fr-FR-BrigitteNeural",
+    "♀  Josephine · 밝은":            "fr-FR-JosephineNeural",
+    "♀  Yvette · 부드러운":           "fr-FR-YvetteNeural",
+    "♀  Eloise · 어린이":             "fr-FR-EloiseNeural",
+    "♂  Alain · 깊은":                "fr-FR-AlainNeural",
+    "♂  Claude · 중간":               "fr-FR-ClaudeNeural",
+    "♂  Jerome · 격식체":             "fr-FR-JeromeNeural",
+}
+VOICE_LABELS = list(VOICES.keys())
 
 SAMPLES = [
     "Bonjour, comment allez-vous aujourd'hui ?",
@@ -354,20 +288,23 @@ html, body {
 
 # ── TTS function ────────────────────────────────────────────────────────────
 
-def synthesize(text: str, voice_label: str, rate: int, pitch: int, volume: int) -> str:
+async def _synthesize(text: str, voice_id: str, rate: int, pitch: int) -> str:
+    communicate = edge_tts.Communicate(
+        text,
+        voice_id,
+        rate=f"{rate:+d}%",
+        pitch=f"{pitch:+d}Hz",
+    )
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+    tmp.close()
+    await communicate.save(tmp.name)
+    return tmp.name
+
+def synthesize(text: str, voice_label: str, rate: int, pitch: int) -> str:
     if not text or not text.strip():
         raise gr.Error("텍스트를 입력해 주세요.")
-    voice_id = VOICE_MAP[voice_label]
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-    tmp.close()
-    result = subprocess.run(
-        [ESPEAK, "-v", voice_id, "-s", str(rate), "-p", str(pitch),
-         "-a", str(volume), "-w", tmp.name, text.strip()],
-        capture_output=True,
-    )
-    if result.returncode != 0:
-        raise gr.Error(f"음성 생성 실패: {result.stderr.decode(errors='replace')}")
-    return tmp.name
+    voice_id = VOICES[voice_label]
+    return asyncio.run(_synthesize(text.strip(), voice_id, rate, pitch))
 
 # ── UI ───────────────────────────────────────────────────────────────────────
 
@@ -419,18 +356,13 @@ with gr.Blocks(title="🌊 French TTS") as demo:
             )
             rate_slider = gr.Slider(
                 label="⚡  Vitesse",
-                minimum=80, maximum=300, value=150, step=10,
-                info="mots/min  ·  기본 150",
+                minimum=-50, maximum=50, value=0, step=5,
+                info="-50% 느림 ··· 0 기본 ··· +50% 빠름",
             )
             pitch_slider = gr.Slider(
                 label="🎵  Tonalité",
-                minimum=0, maximum=99, value=50, step=5,
-                info="0 grave ··· 99 aigu  ·  기본 50",
-            )
-            volume_slider = gr.Slider(
-                label="🔊  Volume",
-                minimum=50, maximum=200, value=100, step=10,
-                info="50 ··· 200  ·  기본 100",
+                minimum=-20, maximum=20, value=0, step=5,
+                info="-20Hz 낮음 ··· 0 기본 ··· +20Hz 높음",
             )
 
     # ── Generate button ──────────────────────────────────────────────────────
@@ -451,7 +383,7 @@ with gr.Blocks(title="🌊 French TTS") as demo:
     gr.HTML('<div class="pb-footer">🏖️ &nbsp; ～ ～ 🐚 ～ ～ &nbsp; 🏖️</div>')
 
     # ── Events ───────────────────────────────────────────────────────────────
-    inputs = [text_input, voice_select, rate_slider, pitch_slider, volume_slider]
+    inputs = [text_input, voice_select, rate_slider, pitch_slider]
     speak_btn.click(fn=synthesize, inputs=inputs, outputs=audio_output)
     text_input.submit(fn=synthesize, inputs=inputs, outputs=audio_output)
 

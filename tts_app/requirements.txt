@@ -1,7 +1,2 @@
 gradio>=4.0.0
-huggingface_hub>=0.20.0
-
-# 시스템 패키지 필요 (pip install 아님):
-# Ubuntu/Debian: sudo apt-get install espeak-ng mbrola mbrola-fr1 mbrola-fr2 mbrola-fr3 mbrola-fr4
-# macOS:         brew install espeak-ng   (Python 3.10+ 권장: brew install python@3.11)
-# Windows:       https://github.com/espeak-ng/espeak-ng/releases 에서 설치 후 PATH 설정
+edge-tts>=6.1.9
