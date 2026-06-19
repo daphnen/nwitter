@@ -388,16 +388,17 @@ with gr.Blocks(title="🌊 French TTS") as demo:
     text_input.submit(fn=synthesize, inputs=inputs, outputs=audio_output)
 
 if __name__ == "__main__":
-    import argparse, socket
+    import argparse, socket, os
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--share", action="store_true", help="Gradio 공개 링크 생성 (72h)")
     parser.add_argument("--host",  action="store_true", help="로컬 네트워크 개방 (같은 와이파이)")
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
 
-    server_name = "0.0.0.0" if args.host or args.share else "127.0.0.1"
+    on_spaces   = bool(os.environ.get("SPACE_ID"))        # HuggingFace Spaces 자동 감지
+    server_name = "0.0.0.0" if (args.host or args.share or on_spaces) else "127.0.0.1"
 
-    if args.host and not args.share:
+    if args.host and not args.share and not on_spaces:
         try:
             local_ip = socket.gethostbyname(socket.gethostname())
         except Exception:
