@@ -388,4 +388,20 @@ with gr.Blocks(title="🌊 French TTS") as demo:
     text_input.submit(fn=synthesize, inputs=inputs, outputs=audio_output)
 
 if __name__ == "__main__":
-    demo.launch(css=CSS)
+    import argparse, socket
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--share", action="store_true", help="Gradio 공개 링크 생성 (72h)")
+    parser.add_argument("--host",  action="store_true", help="로컬 네트워크 개방 (같은 와이파이)")
+    args = parser.parse_args()
+
+    server_name = "0.0.0.0" if args.host or args.share else "127.0.0.1"
+
+    if args.host and not args.share:
+        try:
+            local_ip = socket.gethostbyname(socket.gethostname())
+        except Exception:
+            local_ip = "Mac IP 확인: ipconfig getifaddr en0"
+        print(f"\n📱 태블릿/폰에서 접속: http://{local_ip}:7860\n")
+
+    demo.launch(css=CSS, server_name=server_name, share=args.share)
