@@ -1,10 +1,23 @@
-import React from "react";
+/**
+ * 고양이 마스코트와 발바닥 아이콘.
+ * 색은 CSS 변수(--cat-fur / --cat-line / --cat-blush)를 따라가므로
+ * 테마가 바뀌어도 같은 그림이 그대로 쓰입니다.
+ */
 
-/** 흰 고양이 마스코트. mood 로 표정이 살짝 바뀝니다. */
-export function CatMascot({ size = 96, mood = "happy" }) {
+type CatMood = "happy" | "sleepy";
+
+export function CatMascot({
+  size = 96,
+  mood = "happy",
+  className = "",
+}: {
+  size?: number;
+  mood?: CatMood;
+  className?: string;
+}) {
   return (
     <svg
-      className="cat-mascot"
+      className={className}
       width={size}
       height={size * 0.92}
       viewBox="0 0 120 110"
@@ -26,8 +39,8 @@ export function CatMascot({ size = 96, mood = "happy" }) {
         strokeWidth="3"
         strokeLinejoin="round"
       />
-      <path d="M30 38 L32 20 L46 31 Z" fill="var(--pink-soft)" />
-      <path d="M90 38 L88 20 L74 31 Z" fill="var(--pink-soft)" />
+      <path d="M30 38 L32 20 L46 31 Z" fill="var(--tone-pink-soft)" />
+      <path d="M90 38 L88 20 L74 31 Z" fill="var(--tone-pink-soft)" />
 
       {/* 얼굴 */}
       <ellipse
@@ -43,8 +56,20 @@ export function CatMascot({ size = 96, mood = "happy" }) {
       {/* 눈 */}
       {mood === "sleepy" ? (
         <>
-          <path d="M40 62 q7 7 14 0" fill="none" stroke="var(--cat-line)" strokeWidth="3.2" strokeLinecap="round" />
-          <path d="M66 62 q7 7 14 0" fill="none" stroke="var(--cat-line)" strokeWidth="3.2" strokeLinecap="round" />
+          <path
+            d="M40 62 q7 7 14 0"
+            fill="none"
+            stroke="var(--cat-line)"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M66 62 q7 7 14 0"
+            fill="none"
+            stroke="var(--cat-line)"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+          />
         </>
       ) : (
         <>
@@ -56,11 +81,11 @@ export function CatMascot({ size = 96, mood = "happy" }) {
       )}
 
       {/* 볼터치 */}
-      <ellipse cx="34" cy="72" rx="7.5" ry="5" fill="var(--pink)" opacity="0.55" />
-      <ellipse cx="86" cy="72" rx="7.5" ry="5" fill="var(--pink)" opacity="0.55" />
+      <ellipse cx="34" cy="72" rx="7.5" ry="5" fill="var(--cat-blush)" opacity="0.55" />
+      <ellipse cx="86" cy="72" rx="7.5" ry="5" fill="var(--cat-blush)" opacity="0.55" />
 
       {/* 코 & 입 */}
-      <path d="M56.5 70 L63.5 70 L60 74 Z" fill="var(--pink)" />
+      <path d="M56.5 70 L63.5 70 L60 74 Z" fill="var(--cat-blush)" />
       <path
         d="M60 74 q-5 6 -9.5 1 M60 74 q5 6 9.5 1"
         fill="none"
@@ -80,11 +105,16 @@ export function CatMascot({ size = 96, mood = "happy" }) {
   );
 }
 
-/** 발바닥 도장 — 리스트 불릿·장식용 */
-export function Paw({ size = 16, className = "" }) {
+export function Paw({
+  size = 16,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
     <svg
-      className={`paw ${className}`}
+      className={className}
       width={size}
       height={size}
       viewBox="0 0 24 24"
@@ -96,14 +126,5 @@ export function Paw({ size = 16, className = "" }) {
       <ellipse cx="14.8" cy="6.2" rx="2.6" ry="3.4" fill="currentColor" />
       <ellipse cx="19.4" cy="9.5" rx="2.6" ry="3.2" fill="currentColor" />
     </svg>
-  );
-}
-
-/** 카드가 비었을 때 보여주는 안내 */
-export function EmptyNote({ children }) {
-  return (
-    <p className="empty-note">
-      <Paw size={14} /> {children}
-    </p>
   );
 }

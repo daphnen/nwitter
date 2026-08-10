@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   디자인 토큰
+   ---------------------------------------------------------------------------
+   색은 전부 여기서만 정의합니다. 컴포넌트에는 bg-pink-100 같은 하드코딩 색을
+   쓰지 않고 bg-card / text-ink / bg-tone-blue-soft 같은 시맨틱 유틸만 씁니다.
+
+   구조:  <html data-theme="moonlight|aqua" data-mode="light|dark">
+   즉 팔레트는 테마 2종 × 라이트/다크 2종 = 4벌입니다.
+
+   지금 값은 reference/prototype.html 의 팔레트를 그대로 옮겨온 것입니다.
+   (2단계에서 moonlight 무드로, 3단계에서 aqua 를 추가합니다.)
+   ========================================================================= */
+
+:root {
+  /*
+   * 글꼴 스택. next/font 가 --font-jua / --font-gaegu 를 심어줍니다.
+   * @theme inline 은 변수를 :root 에 내보내지 않고 유틸리티에 인라인만 하므로,
+   * 손으로 쓰는 CSS 에서 쓰려면 이렇게 별도 변수로 둬야 합니다.
+   */
+  --stack-round: var(--font-jua), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --stack-hand: var(--font-gaegu), var(--font-jua), sans-serif;
+}
+
+:root,
+[data-theme="moonlight"] {
+  /* 바탕 */
+  --bg-base: #fff6ef;
+  --bg-gradient: radial-gradient(1200px 600px at 12% -8%, #ffe1e9, transparent 60%),
+    radial-gradient(1000px 500px at 92% 0%, #e2effc, transparent 55%),
+    linear-gradient(180deg, #fff6ef 0%, #ffe9dc 100%);
+  --bg-texture: none;
+
+  /* 카드 */
+  --card-bg: #ffffff;
+  --card-bg-subtle: #fffaf6;
+  --card-border: #f2e0d5;
+  --card-radius: 26px;
+  --card-shadow: 0 14px 30px -18px rgba(150, 100, 78, 0.55);
+  --card-shadow-soft: 0 6px 16px -10px rgba(150, 100, 78, 0.45);
+
+  /* 글자 */
+  --text-primary: #5c4a44;
+  --text-muted: #8d7168;
+
+  /* 포인트 */
+  --accent: #ffb495;
+  --accent-soft: #ffe6d9;
+  --accent-strong: #b8552a;
+  /* --accent 위에 올라가는 글자색. 흰색은 대비가 2:1 대라 AA 를 못 넘깁니다. */
+  --on-accent: #46312a;
+  --ear-color: #ffb495;
+  --badge-bg: #ffe6d9;
+
+  /* 진행 막대 */
+  --progress-from: #8fd9c0;
+  --progress-to: #ffabc3;
+
+  /* 카드/태그 계열 색 — 일정=파랑, 식사=주황, 일과=보라, 목표=초록, 뉴스=노랑 */
+  --tone-blue: #a4cdf5;
+  --tone-blue-soft: #e2effc;
+  --tone-orange: #ffb495;
+  --tone-orange-soft: #ffe6d9;
+  --tone-purple: #c9b6f0;
+  --tone-purple-soft: #efe8fd;
+  --tone-green: #8fd9c0;
+  --tone-green-soft: #ddf5ec;
+  --tone-yellow: #ffd489;
+  --tone-yellow-soft: #fff2d8;
+  --tone-pink: #ffabc3;
+  --tone-pink-soft: #ffe1e9;
+  --tone-mint: #8fd9c0;
+  --tone-mint-soft: #ddf5ec;
+  --tone-gray: #c3b3ac;
+  --tone-gray-soft: #f1e8e3;
+
+  /* 고양이 */
+  --cat-fur: #ffffff;
+  --cat-line: #6b574f;
+  --cat-blush: #ffabc3;
+}
+
+[data-theme="moonlight"][data-mode="dark"] {
+  --bg-base: #2c2533;
+  --bg-gradient: radial-gradient(1200px 600px at 12% -8%, #4a3642, transparent 60%),
+    radial-gradient(1000px 500px at 92% 0%, #33414f, transparent 55%),
+    linear-gradient(180deg, #2c2533 0%, #382f42 100%);
+
+  --card-bg: #3a3145;
+  --card-bg-subtle: #423851;
+  --card-border: #4d4159;
+  --card-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.7);
+  --card-shadow-soft: 0 6px 16px -10px rgba(0, 0, 0, 0.6);
+
+  --text-primary: #f6e9e6;
+  --text-muted: #c4b3c6;
+
+  --accent: #f0a385;
+  --accent-soft: #4b3a41;
+  --accent-strong: #ffc3ab;
+  --on-accent: #2c2533;
+  --ear-color: #f0a385;
+  --badge-bg: #4b3a41;
+
+  --progress-from: #7fcbb2;
+  --progress-to: #f09cb6;
+
+  --tone-blue: #8fbde9;
+  --tone-blue-soft: #33414f;
+  --tone-orange: #f0a385;
+  --tone-orange-soft: #4b3a41;
+  --tone-purple: #b7a2e6;
+  --tone-purple-soft: #3d3450;
+  --tone-green: #7fcbb2;
+  --tone-green-soft: #33453f;
+  --tone-yellow: #f0c67c;
+  --tone-yellow-soft: #4a4030;
+  --tone-pink: #f09cb6;
+  --tone-pink-soft: #4a3642;
+  --tone-mint: #7fcbb2;
+  --tone-mint-soft: #33453f;
+  --tone-gray: #9c8e98;
+  --tone-gray-soft: #423b48;
+
+  --cat-fur: #fdfbff;
+  --cat-line: #4a3f52;
+  --cat-blush: #f09cb6;
+}
+
+/* ============================================================================
+   Tailwind 토큰 등록
+   @theme inline 은 값을 복사하지 않고 var() 참조를 그대로 남깁니다.
+   그래서 data-theme 만 바꿔도 유틸리티 색이 런타임에 따라 바뀝니다.
+   ========================================================================= */
+
+@theme inline {
+  --color-bg: var(--bg-base);
+  --color-card: var(--card-bg);
+  --color-card-subtle: var(--card-bg-subtle);
+  --color-line: var(--card-border);
+  --color-ink: var(--text-primary);
+  --color-muted: var(--text-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
+  --color-ear: var(--ear-color);
+  --color-badge: var(--badge-bg);
+
+  --color-tone-blue: var(--tone-blue);
+  --color-tone-blue-soft: var(--tone-blue-soft);
+  --color-tone-orange: var(--tone-orange);
+  --color-tone-orange-soft: var(--tone-orange-soft);
+  --color-tone-purple: var(--tone-purple);
+  --color-tone-purple-soft: var(--tone-purple-soft);
+  --color-tone-green: var(--tone-green);
+  --color-tone-green-soft: var(--tone-green-soft);
+  --color-tone-yellow: var(--tone-yellow);
+  --color-tone-yellow-soft: var(--tone-yellow-soft);
+  --color-tone-pink: var(--tone-pink);
+  --color-tone-pink-soft: var(--tone-pink-soft);
+  --color-tone-mint: var(--tone-mint);
+  --color-tone-mint-soft: var(--tone-mint-soft);
+  --color-tone-gray: var(--tone-gray);
+  --color-tone-gray-soft: var(--tone-gray-soft);
+
+  --font-round: var(--stack-round);
+  --font-hand: var(--stack-hand);
+
+  --radius-card: var(--card-radius);
+  --radius-inner: 16px;
+
+  --shadow-card: var(--card-shadow);
+  --shadow-card-soft: var(--card-shadow-soft);
+}
+
+/* ========================================================================= */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--bg-base);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--stack-round);
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 터치 타겟 최소 44px — 모바일에서 버튼이 너무 작아지지 않게 */
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
