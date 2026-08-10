@@ -49,6 +49,10 @@ npm run dev
 테마 2종 × 라이트/다크 2종 = 팔레트 4벌. `@theme inline` 으로 등록해서
 `data-theme` 만 바꾸면 유틸리티 색이 런타임에 따라옵니다.
 
+카드별 색 계열은 카드 루트의 `data-tone="blue|orange|..."` 이 `--tone` /
+`--tone-soft` 를 갈아끼우는 방식입니다. 덕분에 카드 안에서는 `bg-tone`,
+`border-tone`, `bg-tone-soft` 세 가지만 쓰면 됩니다.
+
 주의할 점 두 가지:
 
 - `@theme inline` 은 변수를 `:root` 에 내보내지 않습니다. 손으로 쓰는 CSS 에서
@@ -68,7 +72,10 @@ src/
 │   ├── page.tsx              홈
 │   ├── login/                매직링크 로그인
 │   └── auth/callback/        세션 교환
-├── components/Cat.tsx        고양이 마스코트 · 발바닥
+├── components/
+│   ├── Cat.tsx               고양이 마스코트 · 발바닥
+│   ├── DashboardCard.tsx     카드 공통 껍데기 (제목/배지/본문)
+│   └── cards/                홈 카드 5종
 ├── lib/
 │   ├── supabase/             브라우저 / 서버 / 미들웨어 클라이언트
 │   ├── database.types.ts     스키마 타입
@@ -80,10 +87,15 @@ src/
 ## 진행 상황
 
 - [x] 1단계 — Next.js 셋업 + 스키마 SQL + 인증
-- [ ] 2단계 — 디자인 토큰 + 프로토타입을 moonlight 로 이관
+- [x] 2단계 — 디자인 토큰 + 프로토타입을 moonlight 로 이관
 - [ ] 3단계 — aqua 테마 + 설정에서 전환
 - [ ] 4단계 — 하단 탭 + 캘린더
 - [ ] 5단계 — 카드 접기 + 순서/숨김
 - [ ] 6단계 — 친구 기록 토글 (테마 전환)
 - [ ] 7단계 — 뉴스 RSS
 - [ ] 8단계 — PWA
+
+## 임시: /design-preview
+
+Supabase 없이 카드 배치와 테마를 눈으로 확인하기 위한 목데이터 페이지입니다.
+로그인 뒤에만 열립니다. 3단계(aqua 테마) 확인까지 쓰고 지울 예정입니다.

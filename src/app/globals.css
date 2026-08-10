@@ -4,134 +4,169 @@
    디자인 토큰
    ---------------------------------------------------------------------------
    색은 전부 여기서만 정의합니다. 컴포넌트에는 bg-pink-100 같은 하드코딩 색을
-   쓰지 않고 bg-card / text-ink / bg-tone-blue-soft 같은 시맨틱 유틸만 씁니다.
+   쓰지 않고 bg-card / text-ink / bg-tone-soft 같은 시맨틱 유틸만 씁니다.
 
    구조:  <html data-theme="moonlight|aqua" data-mode="light|dark">
-   즉 팔레트는 테마 2종 × 라이트/다크 2종 = 4벌입니다.
+   팔레트는 테마 2종 × 라이트/다크 2종 = 4벌.
 
-   지금 값은 reference/prototype.html 의 팔레트를 그대로 옮겨온 것입니다.
-   (2단계에서 moonlight 무드로, 3단계에서 aqua 를 추가합니다.)
+   카드별 색 계열(일정=파랑, 식사=주황, 일과=보라, 목표=초록, 뉴스=노랑)은
+   카드 루트의 data-tone 으로 --tone / --tone-soft 를 갈아끼워 표현합니다.
+   덕분에 컴포넌트는 bg-tone 한 가지만 쓰면 됩니다.
    ========================================================================= */
 
 :root {
   /*
-   * 글꼴 스택. next/font 가 --font-jua / --font-gaegu 를 심어줍니다.
+   * 글꼴 스택. next/font 가 --font-jua / --font-gaegu 를 <html> 에 심어줍니다.
    * @theme inline 은 변수를 :root 에 내보내지 않고 유틸리티에 인라인만 하므로,
    * 손으로 쓰는 CSS 에서 쓰려면 이렇게 별도 변수로 둬야 합니다.
    */
   --stack-round: var(--font-jua), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --stack-hand: var(--font-gaegu), var(--font-jua), sans-serif;
+
+  /* data-tone 이 없는 곳의 기본값 */
+  --tone: var(--accent);
+  --tone-soft: var(--accent-soft);
 }
+
+/* ---------------------------------------------------------------- moonlight
+   세일러문 무드. 연분홍 → 라벤더, 로즈핑크 + 골드.
+   ------------------------------------------------------------------------ */
 
 :root,
 [data-theme="moonlight"] {
-  /* 바탕 */
-  --bg-base: #fff6ef;
-  --bg-gradient: radial-gradient(1200px 600px at 12% -8%, #ffe1e9, transparent 60%),
-    radial-gradient(1000px 500px at 92% 0%, #e2effc, transparent 55%),
-    linear-gradient(180deg, #fff6ef 0%, #ffe9dc 100%);
-  --bg-texture: none;
+  --bg-base: #fdf3f8;
+  --bg-gradient: radial-gradient(1100px 560px at 8% -10%, #ffd9e8, transparent 62%),
+    radial-gradient(950px 520px at 95% -4%, #e3dcfb, transparent 58%),
+    linear-gradient(170deg, #fff4f9 0%, #fbeef8 45%, #efe7fb 100%);
 
-  /* 카드 */
-  --card-bg: #ffffff;
-  --card-bg-subtle: #fffaf6;
-  --card-border: #f2e0d5;
+  /* 아주 옅은 별가루. body::before 에 깔립니다. */
+  --bg-texture: radial-gradient(1.6px 1.6px at 12% 18%, #fff 40%, transparent 45%),
+    radial-gradient(1.3px 1.3px at 68% 8%, #fff 40%, transparent 45%),
+    radial-gradient(2px 2px at 84% 42%, #fff 40%, transparent 45%),
+    radial-gradient(1.4px 1.4px at 32% 62%, #fff 40%, transparent 45%),
+    radial-gradient(1.7px 1.7px at 54% 88%, #fff 40%, transparent 45%),
+    radial-gradient(1.2px 1.2px at 90% 74%, #fff 40%, transparent 45%),
+    radial-gradient(1.5px 1.5px at 6% 84%, #fff 40%, transparent 45%);
+  --bg-texture-size: 420px 380px;
+  --bg-texture-opacity: 0.55;
+
+  --card-bg: #fffafc;
+  --card-bg-subtle: #fff4f9;
+  --card-border: #f7e0ed;
   --card-radius: 26px;
-  --card-shadow: 0 14px 30px -18px rgba(150, 100, 78, 0.55);
-  --card-shadow-soft: 0 6px 16px -10px rgba(150, 100, 78, 0.45);
+  --card-shadow: 0 16px 32px -20px rgba(206, 116, 163, 0.5);
+  --card-shadow-soft: 0 7px 18px -12px rgba(206, 116, 163, 0.45);
 
-  /* 글자 */
-  --text-primary: #5c4a44;
-  --text-muted: #8d7168;
+  --text-primary: #57394c;
+  --text-muted: #7b5f70;
 
-  /* 포인트 */
-  --accent: #ffb495;
-  --accent-soft: #ffe6d9;
-  --accent-strong: #b8552a;
-  /* --accent 위에 올라가는 글자색. 흰색은 대비가 2:1 대라 AA 를 못 넘깁니다. */
-  --on-accent: #46312a;
-  --ear-color: #ffb495;
-  --badge-bg: #ffe6d9;
+  --accent: #f191b3;
+  --accent-soft: #ffe3ee;
+  --accent-strong: #b8446f;
+  /* --accent 위 글자색. 흰색은 대비 3:1 미만이라 AA 를 못 넘깁니다. */
+  --on-accent: #3d1c2b;
 
-  /* 진행 막대 */
-  --progress-from: #8fd9c0;
-  --progress-to: #ffabc3;
+  /* 골드 악센트 */
+  --gold: #e8b551;
+  --gold-soft: #fdf0d6;
 
-  /* 카드/태그 계열 색 — 일정=파랑, 식사=주황, 일과=보라, 목표=초록, 뉴스=노랑 */
-  --tone-blue: #a4cdf5;
-  --tone-blue-soft: #e2effc;
-  --tone-orange: #ffb495;
-  --tone-orange-soft: #ffe6d9;
-  --tone-purple: #c9b6f0;
-  --tone-purple-soft: #efe8fd;
-  --tone-green: #8fd9c0;
-  --tone-green-soft: #ddf5ec;
-  --tone-yellow: #ffd489;
-  --tone-yellow-soft: #fff2d8;
-  --tone-pink: #ffabc3;
-  --tone-pink-soft: #ffe1e9;
-  --tone-mint: #8fd9c0;
-  --tone-mint-soft: #ddf5ec;
-  --tone-gray: #c3b3ac;
-  --tone-gray-soft: #f1e8e3;
+  /* 진행 막대: 핑크 → 골드 */
+  --progress-from: #f191b3;
+  --progress-to: #e8b551;
 
-  /* 고양이 */
+  --heading-shadow: 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 3px 10px rgba(224, 130, 175, 0.16);
+  --sparkle-color: #f6c85f;
+
+  /* 카드 계열 색 — 파스텔로 살짝 핑크빛이 도는 톤 */
+  --tone-blue: #a9c6ef;
+  --tone-blue-soft: #e7effb;
+  --tone-orange: #f6b096;
+  --tone-orange-soft: #ffe7dc;
+  --tone-purple: #c4aef0;
+  --tone-purple-soft: #efe7fd;
+  --tone-green: #97d8bf;
+  --tone-green-soft: #e0f5ed;
+  --tone-yellow: #f5cb7c;
+  --tone-yellow-soft: #fdf1d6;
+  --tone-pink: #f5a3c1;
+  --tone-pink-soft: #ffe3ee;
+  --tone-mint: #97d8bf;
+  --tone-mint-soft: #e0f5ed;
+  --tone-gray: #c0adbb;
+  --tone-gray-soft: #f2e9ef;
+
   --cat-fur: #ffffff;
-  --cat-line: #6b574f;
-  --cat-blush: #ffabc3;
+  --cat-line: #6a4c5e;
+  --cat-blush: #f5a3c1;
 }
 
 [data-theme="moonlight"][data-mode="dark"] {
-  --bg-base: #2c2533;
-  --bg-gradient: radial-gradient(1200px 600px at 12% -8%, #4a3642, transparent 60%),
-    radial-gradient(1000px 500px at 92% 0%, #33414f, transparent 55%),
-    linear-gradient(180deg, #2c2533 0%, #382f42 100%);
+  --bg-base: #241b2e;
+  --bg-gradient: radial-gradient(1100px 560px at 8% -10%, #4b2a44, transparent 62%),
+    radial-gradient(950px 520px at 95% -4%, #322a55, transparent 58%),
+    linear-gradient(170deg, #2a1f36 0%, #251c31 50%, #1f1b2e 100%);
+  --bg-texture-opacity: 0.75;
 
-  --card-bg: #3a3145;
-  --card-bg-subtle: #423851;
-  --card-border: #4d4159;
-  --card-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.7);
-  --card-shadow-soft: 0 6px 16px -10px rgba(0, 0, 0, 0.6);
+  --card-bg: #342843;
+  --card-bg-subtle: #3d2f4e;
+  --card-border: #4b3a5e;
+  --card-shadow: 0 16px 32px -20px rgba(0, 0, 0, 0.75);
+  --card-shadow-soft: 0 7px 18px -12px rgba(0, 0, 0, 0.65);
 
-  --text-primary: #f6e9e6;
-  --text-muted: #c4b3c6;
+  --text-primary: #f7e8f1;
+  --text-muted: #c6adc2;
 
-  --accent: #f0a385;
-  --accent-soft: #4b3a41;
-  --accent-strong: #ffc3ab;
-  --on-accent: #2c2533;
-  --ear-color: #f0a385;
-  --badge-bg: #4b3a41;
+  --accent: #ef9dbd;
+  --accent-soft: #4a2d3e;
+  --accent-strong: #ffc2d8;
+  --on-accent: #2a1520;
 
-  --progress-from: #7fcbb2;
-  --progress-to: #f09cb6;
+  --gold: #e6c374;
+  --gold-soft: #4a3d26;
 
-  --tone-blue: #8fbde9;
-  --tone-blue-soft: #33414f;
-  --tone-orange: #f0a385;
-  --tone-orange-soft: #4b3a41;
-  --tone-purple: #b7a2e6;
-  --tone-purple-soft: #3d3450;
-  --tone-green: #7fcbb2;
-  --tone-green-soft: #33453f;
-  --tone-yellow: #f0c67c;
-  --tone-yellow-soft: #4a4030;
-  --tone-pink: #f09cb6;
-  --tone-pink-soft: #4a3642;
-  --tone-mint: #7fcbb2;
-  --tone-mint-soft: #33453f;
-  --tone-gray: #9c8e98;
-  --tone-gray-soft: #423b48;
+  --progress-from: #ef9dbd;
+  --progress-to: #e6c374;
+
+  --heading-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --sparkle-color: #f3d27e;
+
+  --tone-blue: #93b6e5;
+  --tone-blue-soft: #2f3a52;
+  --tone-orange: #e8a184;
+  --tone-orange-soft: #4a3330;
+  --tone-purple: #b49ce6;
+  --tone-purple-soft: #3a2f52;
+  --tone-green: #84c9ac;
+  --tone-green-soft: #2c4340;
+  --tone-yellow: #e5bd74;
+  --tone-yellow-soft: #473b28;
+  --tone-pink: #ef9dbd;
+  --tone-pink-soft: #4a2d3e;
+  --tone-mint: #84c9ac;
+  --tone-mint-soft: #2c4340;
+  --tone-gray: #9d8a99;
+  --tone-gray-soft: #3d3446;
 
   --cat-fur: #fdfbff;
-  --cat-line: #4a3f52;
-  --cat-blush: #f09cb6;
+  --cat-line: #46384f;
+  --cat-blush: #ef9dbd;
 }
+
+/* 카드 계열 색 지정 — data-tone 하나로 --tone / --tone-soft 를 바꿉니다. */
+[data-tone="blue"] { --tone: var(--tone-blue); --tone-soft: var(--tone-blue-soft); }
+[data-tone="orange"] { --tone: var(--tone-orange); --tone-soft: var(--tone-orange-soft); }
+[data-tone="purple"] { --tone: var(--tone-purple); --tone-soft: var(--tone-purple-soft); }
+[data-tone="green"] { --tone: var(--tone-green); --tone-soft: var(--tone-green-soft); }
+[data-tone="yellow"] { --tone: var(--tone-yellow); --tone-soft: var(--tone-yellow-soft); }
+[data-tone="pink"] { --tone: var(--tone-pink); --tone-soft: var(--tone-pink-soft); }
+[data-tone="mint"] { --tone: var(--tone-mint); --tone-soft: var(--tone-mint-soft); }
+[data-tone="gray"] { --tone: var(--tone-gray); --tone-soft: var(--tone-gray-soft); }
 
 /* ============================================================================
    Tailwind 토큰 등록
-   @theme inline 은 값을 복사하지 않고 var() 참조를 그대로 남깁니다.
-   그래서 data-theme 만 바꿔도 유틸리티 색이 런타임에 따라 바뀝니다.
+   @theme inline 은 값을 복사하지 않고 var() 참조를 남깁니다.
+   그래서 data-theme / data-tone 만 바꿔도 유틸리티 색이 런타임에 따라옵니다.
    ========================================================================= */
 
 @theme inline {
@@ -146,9 +181,14 @@
   --color-accent-soft: var(--accent-soft);
   --color-accent-strong: var(--accent-strong);
   --color-on-accent: var(--on-accent);
-  --color-ear: var(--ear-color);
-  --color-badge: var(--badge-bg);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
 
+  /* 카드 계열 색 — data-tone 이 정해준 현재 색 */
+  --color-tone: var(--tone);
+  --color-tone-soft: var(--tone-soft);
+
+  /* 계열 색을 직접 지정해야 할 때 (태그 칩, 배경 장식 등) */
   --color-tone-blue: var(--tone-blue);
   --color-tone-blue-soft: var(--tone-blue-soft);
   --color-tone-orange: var(--tone-orange);
@@ -176,6 +216,11 @@
   --shadow-card-soft: var(--card-shadow-soft);
 }
 
+@theme {
+  /* 프로토타입의 900px 분기 */
+  --breakpoint-wide: 56.25rem;
+}
+
 /* ========================================================================= */
 
 @layer base {
@@ -184,6 +229,7 @@
   }
 
   body {
+    position: relative;
     min-height: 100vh;
     background-color: var(--bg-base);
     background-image: var(--bg-gradient);
@@ -192,9 +238,27 @@
     font-family: var(--stack-round);
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
+    /* 테마 전환용. 6단계에서 친구 기록을 볼 때 부드럽게 넘어갑니다. */
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* 터치 타겟 최소 44px — 모바일에서 버튼이 너무 작아지지 않게 */
+  /* 별가루 텍스처 (moonlight 전용, aqua 는 --bg-texture: none) */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--bg-texture, none);
+    background-size: var(--bg-texture-size, auto);
+    opacity: var(--bg-texture-opacity, 0);
+  }
+
+  h1,
+  h2 {
+    text-shadow: var(--heading-shadow, none);
+  }
+
   button,
   [role="button"] {
     touch-action: manipulation;
@@ -214,5 +278,113 @@
   }
   ::-webkit-scrollbar-track {
     background: transparent;
+  }
+}
+
+/* ============================================================================
+   프로토타입에서 그대로 가져온 조각들
+   ========================================================================= */
+
+@layer components {
+  /* 카드 위로 삐죽 나온 고양이 귀 */
+  .cat-card {
+    position: relative;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .cat-card::before,
+  .cat-card::after {
+    content: "";
+    position: absolute;
+    top: -17px;
+    width: 30px;
+    height: 28px;
+    background: var(--tone);
+    clip-path: polygon(50% 0%, 96% 92%, 4% 92%);
+    z-index: -1;
+    transition: background-color 0.3s ease;
+  }
+  .cat-card::before {
+    left: 24px;
+    transform: rotate(-22deg);
+  }
+  .cat-card::after {
+    left: 56px;
+    transform: rotate(22deg);
+  }
+
+  /* 아침/점심/저녁 한 줄 — 좁아지면 세로로 쌓입니다 */
+  .meal-row {
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+  }
+  @media (max-width: 560px) {
+    .meal-row {
+      grid-template-columns: 1fr;
+    }
+    .meal-row > :last-child {
+      justify-self: end;
+    }
+  }
+
+  /* 진행 막대: 핑크 → 골드 */
+  .progress-fill {
+    background: linear-gradient(90deg, var(--progress-from), var(--progress-to));
+    transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* 발바닥 체크를 눌렀을 때 살짝 눌리는 느낌 */
+  .paw-check {
+    transition: transform 0.12s ease, background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .paw-check:active {
+    transform: scale(0.86);
+  }
+}
+
+/* 목표 달성 반짝임 (moonlight) --------------------------------------------- */
+
+@keyframes sparkle-pop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5) rotate(160deg);
+    opacity: 0;
+  }
+}
+
+.sparkle {
+  position: absolute;
+  color: var(--sparkle-color);
+  animation: sparkle-pop 1.5s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.cat-bob {
+  animation: bob 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkle,
+  .cat-bob {
+    animation: none;
+  }
+  .progress-fill {
+    transition: none;
   }
 }

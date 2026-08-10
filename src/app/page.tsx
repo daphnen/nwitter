@@ -1,13 +1,28 @@
 import { redirect } from "next/navigation";
+import AppHeader from "@/components/AppHeader";
+import BackgroundDecor from "@/components/BackgroundDecor";
+import DateNav from "@/components/DateNav";
 import { CatMascot, Paw } from "@/components/Cat";
+import ScheduleCard from "@/components/cards/ScheduleCard";
+import MealsCard from "@/components/cards/MealsCard";
+import TimelineCard from "@/components/cards/TimelineCard";
+import GoalsCard from "@/components/cards/GoalsCard";
+import NewsCard from "@/components/cards/NewsCard";
 import { getSessionState } from "@/lib/auth";
-import { formatKo, greeting, todayKey } from "@/lib/date";
+import { getDashboardData } from "@/lib/queries";
+import { todayKey } from "@/lib/date";
 import { signOut } from "./login/actions";
 
-// 로그인 상태에 따라 내용이 달라지므로 절대 정적으로 굳으면 안 됩니다.
+// 로그인 상태와 선택 날짜에 따라 내용이 달라지므로 정적으로 굳으면 안 됩니다.
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>;
+}) {
   const session = await getSessionState();
 
   if (session.status === "no-env") return <SetupNotice />;
@@ -31,62 +46,51 @@ export default async function HomePage() {
   }
 
   const { profile } = session;
-  const hello = greeting();
-  const today = todayKey();
+  const { date: raw } = await searchParams;
+  const date = raw && DATE_PATTERN.test(raw) ? raw : todayKey();
+
+  const data = await getDashboardData(profile.id, date);
 
   return (
-    <main className="mx-auto max-w-5xl px-5 pb-16 pt-7">
-      <header className="flex flex-wrap items-center gap-5 rounded-[34px] border-2 border-line bg-card px-6 py-5 shadow-card">
-        <CatMascot size={96} />
+    <>
+      <BackgroundDecor />
 
-        <div className="min-w-60 flex-1">
-          <p className="font-hand text-xl font-bold text-muted">
-            {hello.emoji} {hello.text}
-          </p>
-          <h1 className="text-3xl">우리의 대시보드</h1>
-          <p className="mt-1 text-sm text-muted">
-            {profile.display_name}
-            {profile.avatar_emoji} 님, 오늘도 차근차근 🐾
-          </p>
-        </div>
+      <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-16 pt-7">
+        <AppHeader profile={profile} />
+        <DateNav date={date} />
 
-        <div className="flex flex-col items-end gap-2">
-          <span className="rounded-full border-2 border-tone-green bg-tone-green-soft px-3 py-1 text-xs">
-            ☁️ 동기화됨
-          </span>
-          <form action={signOut}>
-            <button className="min-h-11 rounded-full border-2 border-line px-4 text-xs text-muted transition hover:text-ink">
-              로그아웃
-            </button>
-          </form>
-        </div>
-      </header>
+        <main className="grid items-start gap-5 wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+          <div className="flex min-w-0 flex-col gap-5">
+            <ScheduleCard
+              date={date}
+              items={data.schedule}
+              events={data.events}
+            />
+            <MealsCard date={date} dailyLog={data.dailyLog} />
+            <TimelineCard
+              date={date}
+              entries={data.timeline}
+              tags={data.tags}
+            />
+          </div>
 
-      <div className="mt-6 flex items-center justify-center">
-        <div className="rounded-full border-2 border-line bg-card px-6 py-2 text-xl shadow-card-soft">
-          <strong>{formatKo(today)}</strong>
-        </div>
+          <div className="flex min-w-0 flex-col gap-5">
+            <GoalsCard goals={data.goals} date={date} />
+            <NewsCard keywords={data.keywords} />
+          </div>
+        </main>
+
+        <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
+          <Paw size={14} /> 오늘도 수고했어요
+        </footer>
       </div>
-
-      <section className="relative mt-8 rounded-card border-2 border-line bg-card px-6 py-8 text-center shadow-card">
-        <p className="text-lg">여기에 카드들이 들어옵니다</p>
-        <p className="mt-2 text-sm leading-relaxed text-muted">
-          1단계(셋업 + 인증)까지 끝났어요.
-          <br />
-          2단계에서 프로토타입 화면을 그대로 옮겨옵니다.
-        </p>
-      </section>
-
-      <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
-        <Paw size={14} /> 오늘도 수고했어요
-      </footer>
-    </main>
+    </>
   );
 }
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-5 text-center">
+    <main className="relative z-[1] mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-5 text-center">
       <div className="w-full rounded-card border-2 border-line bg-card px-7 py-9 shadow-card">
         <div className="flex flex-col items-center">{children}</div>
       </div>

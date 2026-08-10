@@ -38,6 +38,16 @@ export function shiftKey(key: string, days: number): string {
   return `${y}-${m}-${day}`;
 }
 
+/** KST 기준 현재 시각 'HH:MM' */
+export function nowTimeKST(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
+}
+
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
 export function formatKo(key: string): string {

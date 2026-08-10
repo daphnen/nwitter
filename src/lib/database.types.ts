@@ -144,8 +144,18 @@ export type UserPreferences = {
 
 // -------------------------------------------------------- Database 제네릭
 
+/**
+ * 교집합(A & B)을 하나의 매핑 타입으로 펴줍니다.
+ * supabase-js 는 Insert/Update 가 Record<string, unknown> 에 대입 가능하길
+ * 요구하는데, 교집합 그대로면 암묵적 인덱스 시그니처가 붙지 않아
+ * 스키마 전체가 never 로 떨어집니다.
+ */
+type Prettify<T> = { [K in keyof T]: T[K] };
+
 /** 서버가 채워주는 컬럼은 빼고, R 에 나열한 것만 필수로 만듭니다. */
-type Insertable<T, R extends keyof T> = Pick<T, R> & Partial<Omit<T, R>>;
+type Insertable<T, R extends keyof T> = Prettify<
+  Pick<T, R> & Partial<Omit<T, R>>
+>;
 
 type Table<Row, RequiredOnInsert extends keyof Row> = {
   Row: Row;
@@ -153,6 +163,9 @@ type Table<Row, RequiredOnInsert extends keyof Row> = {
   Update: Partial<Row>;
   Relationships: [];
 };
+
+/** Supabase 가 생성하는 타입과 같은 형태의 "빈 레코드" */
+type Empty = { [_ in never]: never };
 
 export type Database = {
   public: {
@@ -171,16 +184,16 @@ export type Database = {
       news_keywords: Table<NewsKeyword, "user_id" | "keyword">;
       user_preferences: Table<UserPreferences, "user_id">;
     };
-    Views: Record<never, never>;
+    Views: Empty;
     Functions: {
-      kst_today: { Args: Record<string, never>; Returns: string };
+      kst_today: { Args: Empty; Returns: string };
       period_start: {
         Args: { p_period: GoalPeriod; p_date: string };
         Returns: string;
       };
-      is_member: { Args: Record<string, never>; Returns: boolean };
+      is_member: { Args: Empty; Returns: boolean };
     };
-    Enums: Record<never, never>;
-    CompositeTypes: Record<never, never>;
+    Enums: Empty;
+    CompositeTypes: Empty;
   };
 };
