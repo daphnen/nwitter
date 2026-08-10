@@ -67,6 +67,55 @@ export function periodStart(period: "daily" | "weekly", key: string): string {
   return shiftKey(key, -offset);
 }
 
+// ------------------------------------------------------------------ 월간 뷰
+
+/** 'YYYY-MM-DD' → 'YYYY-MM' */
+export function toMonthKey(dateKey: string): string {
+  return dateKey.slice(0, 7);
+}
+
+export function shiftMonth(monthKey: string, months: number): string {
+  const [y, m] = monthKey.split("-").map(Number);
+  const d = new Date(y, m - 1 + months, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function formatMonthKo(monthKey: string): string {
+  const [y, m] = monthKey.split("-").map(Number);
+  return `${y}년 ${m}월`;
+}
+
+export function monthRange(monthKey: string): { start: string; end: string } {
+  const [y, m] = monthKey.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return {
+    start: `${monthKey}-01`,
+    end: `${monthKey}-${String(last).padStart(2, "0")}`,
+  };
+}
+
+/**
+ * 월간 격자에 깔 날짜들. 항상 월요일에서 시작하고 주 단위로 떨어지게
+ * 앞뒤 달 날짜를 채웁니다.
+ */
+export function monthGridDays(monthKey: string): string[] {
+  const [y, m] = monthKey.split("-").map(Number);
+  const first = new Date(y, m - 1, 1);
+  const offset = (first.getDay() + 6) % 7; // 월요일 시작
+  const start = new Date(y, m - 1, 1 - offset);
+
+  const lastDay = new Date(y, m, 0).getDate();
+  const totalCells = Math.ceil((offset + lastDay) / 7) * 7;
+
+  return Array.from({ length: totalCells }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
+  });
+}
+
 export function greeting(now: Date = new Date()): { text: string; emoji: string } {
   const hour = Number(
     new Intl.DateTimeFormat("en-US", {

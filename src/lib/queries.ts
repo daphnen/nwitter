@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { periodStart } from "@/lib/date";
+import { isoWeekday } from "@/lib/timetable";
 import type {
+  Profile,
+  Timetable,
+  TimetableItem,
   CalendarEvent,
   DailyLog,
   Goal,
@@ -25,7 +29,60 @@ export type DashboardData = {
   tags: Tag[];
   goals: GoalWithProgress[];
   keywords: NewsKeyword[];
+  /** 이 날짜 요일에 해당하는, 유효기간 안의 시간표 항목 */
+  timetableItems: TimetableItem[];
 };
+
+/** 이 앱을 쓰는 두 사람 중 내가 아닌 쪽 */
+export async function getPartner(userId: string): Promise<Profile | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .neq("id", userId)
+    .limit(1)
+    .maybeSingle();
+  return data ?? null;
+}
+
+/** 기준일에 유효한 시간표들 (유효기간이 그 날을 품는 것) */
+export async function getActiveTimetables(
+  userId: string,
+  dateKey: string
+): Promise<Timetable[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("timetables")
+    .select("*")
+    .eq("user_id", userId)
+    .or(`start_date.is.null,start_date.lte.${dateKey}`)
+    .or(`end_date.is.null,end_date.gte.${dateKey}`)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  return data ?? [];
+}
+
+/** 특정 날짜 요일에 걸리는 시간표 항목 */
+async function getTimetableItemsForDate(
+  userId: string,
+  dateKey: string
+): Promise<TimetableItem[]> {
+  const active = await getActiveTimetables(userId, dateKey);
+  if (active.length === 0) return [];
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("timetable_items")
+    .select("*")
+    .in(
+      "timetable_id",
+      active.map((t) => t.id)
+    )
+    .eq("weekday", isoWeekday(dateKey))
+    .order("start_time", { ascending: true });
+
+  return data ?? [];
+}
 
 /**
  * 홈 화면 한 판에 필요한 데이터를 한 번에 가져옵니다.
@@ -45,6 +102,7 @@ export async function getDashboardData(
     tagsRes,
     goalsRes,
     keywordsRes,
+    timetableItems,
   ] = await Promise.all([
     supabase
       .from("schedule_items")
@@ -98,6 +156,8 @@ export async function getDashboardData(
       .eq("user_id", userId)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true }),
+
+    getTimetableItemsForDate(userId, date),
   ]);
 
   const goals = goalsRes.data ?? [];
@@ -138,5 +198,50 @@ export async function getDashboardData(
       };
     }),
     keywords: keywordsRes.data ?? [],
+    timetableItems,
   };
+}
+
+/** 캘린더 월간 뷰: 이 달에 걸치는 모든 일정 (내 것 + 친구 것 + 공동) */
+export async function getMonthEvents(
+  monthStart: string,
+  monthEnd: string
+): Promise<CalendarEvent[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("events")
+    .select("*")
+    .lte("start_date", monthEnd)
+    .or(`end_date.gte.${monthStart},end_date.is.null`)
+    .order("start_date", { ascending: true })
+    .order("start_time", { ascending: true, nullsFirst: true });
+
+  return (data ?? []).filter((e) =>
+    e.end_date ? e.end_date >= monthStart : e.start_date >= monthStart
+  );
+}
+
+/** 시간표 탭: 한 사람의 시간표 목록 전체 (지난 것 포함) */
+export async function getTimetables(userId: string): Promise<Timetable[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("timetables")
+    .select("*")
+    .eq("user_id", userId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  return data ?? [];
+}
+
+export async function getTimetableItems(
+  timetableIds: string[]
+): Promise<TimetableItem[]> {
+  if (timetableIds.length === 0) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("timetable_items")
+    .select("*")
+    .in("timetable_id", timetableIds)
+    .order("start_time", { ascending: true });
+  return data ?? [];
 }

@@ -55,7 +55,7 @@ export default async function HomePage({
     <>
       <BackgroundDecor />
 
-      <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-16 pt-7">
+      <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-32 pt-7">
         <AppHeader profile={profile} />
         <DateNav date={date} />
 
@@ -65,6 +65,7 @@ export default async function HomePage({
               date={date}
               items={data.schedule}
               events={data.events}
+              timetableItems={data.timetableItems}
             />
             <MealsCard date={date} dailyLog={data.dailyLog} />
             <TimelineCard
@@ -90,7 +91,7 @@ export default async function HomePage({
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative z-[1] mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-5 text-center">
+    <main className="relative z-[1] mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-5 pb-24 text-center">
       <div className="w-full rounded-card border-2 border-line bg-card px-7 py-9 shadow-card">
         <div className="flex flex-col items-center">{children}</div>
       </div>

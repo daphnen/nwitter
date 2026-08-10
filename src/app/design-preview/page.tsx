@@ -20,8 +20,10 @@ import type {
   ScheduleItem,
   Tag,
   TimelineEntry,
+  TimetableItem,
 } from "@/lib/database.types";
 import type { GoalWithProgress } from "@/lib/queries";
+import { isoWeekday } from "@/lib/timetable";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +79,10 @@ const goals: GoalWithProgress[] = [
   { id: "g3", user_id: "u1", title: "주 3회 운동", emoji: "🏃", target: 3, period: "weekly", active: true, sort_order: 2, created_at: now, updated_at: now, periodStart: date, log: { id: "gl3", goal_id: "g3", user_id: "u1", period_start: date, progress: 1, completed_at: null, created_at: now, updated_at: now } },
 ];
 
+const todayTimetableItems: TimetableItem[] = [
+  { id: "ti1", timetable_id: "tt1", user_id: "u1", title: "자료구조", location: "공학관 302", weekday: isoWeekday(date), start_time: "11:00:00", end_time: "12:30:00", color_key: "blue", created_at: now, updated_at: now },
+];
+
 const keywords: NewsKeyword[] = [
   { id: "k1", user_id: "u1", keyword: "프론트엔드", sort_order: 0, created_at: now },
   { id: "k2", user_id: "u1", keyword: "UI 디자인", sort_order: 1, created_at: now },
@@ -107,13 +113,18 @@ export default async function PreviewPage({
         }}
       />
       <BackgroundDecor />
-      <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-16 pt-7">
+      <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-32 pt-7">
         <AppHeader profile={profile} />
         <DateNav date={date} />
 
         <main className="grid items-start gap-stack wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <div className="flex min-w-0 flex-col gap-stack">
-            <ScheduleCard date={date} items={schedule} events={events} />
+            <ScheduleCard
+              date={date}
+              items={schedule}
+              events={events}
+              timetableItems={todayTimetableItems}
+            />
             <MealsCard date={date} dailyLog={dailyLog} />
             <TimelineCard date={date} entries={timeline} tags={tags} />
           </div>

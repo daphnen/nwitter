@@ -133,6 +133,37 @@ export type NewsKeyword = {
   created_at: string;
 };
 
+/** 가로축에 주말을 포함할지 */
+export type TimetableDays = "mon_fri" | "mon_sun";
+
+export type Timetable = {
+  id: string;
+  user_id: string;
+  name: string;
+  /** null 이면 무기한 */
+  start_date: string | null;
+  end_date: string | null;
+  days: TimetableDays;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TimetableItem = {
+  id: string;
+  timetable_id: string;
+  user_id: string;
+  title: string;
+  location: string;
+  /** ISO 기준 1=월 … 7=일 */
+  weekday: number;
+  start_time: string;
+  end_time: string;
+  color_key: ColorKey;
+  created_at: string;
+  updated_at: string;
+};
+
 export type UserPreferences = {
   user_id: string;
   card_order: CardKey[];
@@ -183,6 +214,11 @@ export type Database = {
       events: Table<CalendarEvent, "created_by" | "title" | "start_date">;
       news_keywords: Table<NewsKeyword, "user_id" | "keyword">;
       user_preferences: Table<UserPreferences, "user_id">;
+      timetables: Table<Timetable, "user_id" | "name">;
+      timetable_items: Table<
+        TimetableItem,
+        "timetable_id" | "user_id" | "title" | "weekday" | "start_time" | "end_time"
+      >;
     };
     Views: Empty;
     Functions: {

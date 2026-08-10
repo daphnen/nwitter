@@ -9,7 +9,11 @@ import {
   removeScheduleItem,
   toggleScheduleItem,
 } from "@/app/actions/schedule";
-import type { CalendarEvent, ScheduleItem } from "@/lib/database.types";
+import type {
+  CalendarEvent,
+  ScheduleItem,
+  TimetableItem,
+} from "@/lib/database.types";
 
 function hhmm(time: string | null) {
   return time ? time.slice(0, 5) : "";
@@ -19,10 +23,13 @@ export default function ScheduleCard({
   date,
   items,
   events,
+  timetableItems,
 }: {
   date: string;
   items: ScheduleItem[];
   events: CalendarEvent[];
+  /** 오늘 요일에 걸리는 시간표 항목 (읽기 전용) */
+  timetableItems: TimetableItem[];
 }) {
   const [rows, setRows] = useState(items);
   const [title, setTitle] = useState("");
@@ -70,7 +77,8 @@ export default function ScheduleCard({
   };
 
   const doneCount = rows.filter((r) => r.done).length;
-  const isEmpty = rows.length === 0 && events.length === 0;
+  const isEmpty =
+    rows.length === 0 && events.length === 0 && timetableItems.length === 0;
 
   return (
     <DashboardCard
@@ -102,6 +110,34 @@ export default function ScheduleCard({
       ) : null}
 
       <ul>
+        {/* 시간표에서 온 고정 일정. 매주 반복이라 여기서는 읽기 전용입니다. */}
+        {timetableItems.map((item) => (
+          <li
+            key={item.id}
+            data-tone={item.color_key}
+            className="flex items-center gap-2.5 rounded-inner px-2 py-row"
+          >
+            <span
+              aria-hidden="true"
+              className="grid size-6 shrink-0 place-items-center text-sm"
+              title="시간표"
+            >
+              📚
+            </span>
+            <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-[13px] text-muted">
+              {hhmm(item.start_time)}
+            </span>
+            <span className="min-w-0 flex-1 break-words">
+              {item.title}
+              {item.location ? (
+                <span className="ml-1.5 text-[13px] text-muted">
+                  {item.location}
+                </span>
+              ) : null}
+            </span>
+          </li>
+        ))}
+
         {rows.map((item) => (
           <li
             key={item.id}

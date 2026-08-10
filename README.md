@@ -19,8 +19,10 @@ npm run dev
 
 ## Supabase 준비 (한 번만)
 
-1. **SQL Editor** 에서 [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) 실행
-   - 실행 전 파일 `[11]` 구역의 이메일 2개를 실제 값으로 바꾸세요
+1. **SQL Editor** 에서 마이그레이션을 순서대로 실행
+   - [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql)
+     — 실행 전 파일 `[11]` 구역의 이메일 2개를 실제 값으로 바꾸세요
+   - [`supabase/migrations/0002_timetable.sql`](supabase/migrations/0002_timetable.sql)
 2. **Authentication → Users → Add user** 로 그 두 이메일 생성 (Auto Confirm)
    - ⚠️ 반드시 1번 다음에. 화이트리스트에 없으면 트리거가 막습니다
 3. **Authentication → Providers → Email** → `Allow new users to sign up` 끄기
@@ -105,7 +107,7 @@ src/
 - [x] 1단계 — Next.js 셋업 + 스키마 SQL + 인증
 - [x] 2단계 — 디자인 토큰 + 프로토타입을 moonlight 로 이관
 - [x] 3단계 — aqua 테마 + 설정에서 전환
-- [ ] 4단계 — 하단 탭 + 캘린더
+- [x] 4단계 — 하단 탭 + 캘린더 + 시간표
 - [ ] 5단계 — 카드 접기 + 순서/숨김
 - [ ] 6단계 — 친구 기록 토글 (테마 전환)
 - [ ] 7단계 — 뉴스 RSS
@@ -117,6 +119,19 @@ Supabase 없이 카드 배치와 테마를 눈으로 확인하기 위한 목데�
 로그인 뒤에만 열립니다.
 
 - `/design-preview?theme=aqua&mode=dark` — 홈 화면을 팔레트별로
-- `/design-preview/settings?theme=aqua` — 설정 화면을 팔레트별로
+- `/design-preview/settings?theme=aqua` — 설정 화면
+- `/design-preview/timetable` — 시간표 (`?view=calendar` 로 캘린더)
 
-4단계(캘린더)까지 쓰고 지울 예정입니다.
+5단계까지 쓰고 지울 예정입니다.
+
+## 시간표
+
+매주 반복되는 고정 일정을 격자로 봅니다.
+
+- 시간표를 여러 개 두고 `?tt=<id>` 로 전환합니다. 유효기간(`start_date`~`end_date`)이
+  오늘을 품는 것이 기본 선택이고, 기간이 지나면 홈과 기본 선택에서 자동으로 빠집니다.
+- 월/수 같이 여러 요일에 걸치는 항목은 **요일마다 한 줄**로 저장합니다.
+  `weekday` 는 ISO 기준 1=월 … 7=일 이라 `extract(isodow)` 와 그대로 맞습니다.
+- 상대방 시간표는 **지금 유효한 것만** 점선으로 겹쳐 봅니다.
+  둘 다 비는 30분 칸은 민트로 표시해 약속 잡을 시간을 찾습니다.
+- 같은 요일에 시간이 겹치는 항목은 열을 나눠 나란히 놓습니다 (`layoutDay`).
