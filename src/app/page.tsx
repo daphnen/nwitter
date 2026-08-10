@@ -59,8 +59,8 @@ export default async function HomePage({
         <AppHeader profile={profile} />
         <DateNav date={date} />
 
-        <main className="grid items-start gap-5 wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-          <div className="flex min-w-0 flex-col gap-5">
+        <main className="grid items-start gap-stack wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+          <div className="flex min-w-0 flex-col gap-stack">
             <ScheduleCard
               date={date}
               items={data.schedule}
@@ -74,7 +74,7 @@ export default async function HomePage({
             />
           </div>
 
-          <div className="flex min-w-0 flex-col gap-5">
+          <div className="flex min-w-0 flex-col gap-stack">
             <GoalsCard goals={data.goals} date={date} />
             <NewsCard keywords={data.keywords} />
           </div>

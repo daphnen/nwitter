@@ -83,21 +83,41 @@ const keywords: NewsKeyword[] = [
   { id: "k3", user_id: "u1", keyword: "고양이", sort_order: 2, created_at: now },
 ];
 
-export default function PreviewPage() {
+/**
+ * ?theme=aqua&mode=dark 로 팔레트를 바꿔볼 수 있습니다.
+ * 루트 레이아웃의 <html> 값을 이 페이지에서 덮어씁니다.
+ */
+export default async function PreviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ theme?: string; mode?: string }>;
+}) {
+  const sp = await searchParams;
+  const theme = sp.theme === "aqua" ? "aqua" : "moonlight";
+  const mode = sp.mode === "dark" ? "dark" : "light";
+
   return (
     <>
+      <script
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.dataset.theme=${JSON.stringify(
+            theme
+          )};document.documentElement.dataset.mode=${JSON.stringify(mode)};`,
+        }}
+      />
       <BackgroundDecor />
       <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-16 pt-7">
         <AppHeader profile={profile} />
         <DateNav date={date} />
 
-        <main className="grid items-start gap-5 wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-          <div className="flex min-w-0 flex-col gap-5">
+        <main className="grid items-start gap-stack wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+          <div className="flex min-w-0 flex-col gap-stack">
             <ScheduleCard date={date} items={schedule} events={events} />
             <MealsCard date={date} dailyLog={dailyLog} />
             <TimelineCard date={date} entries={timeline} tags={tags} />
           </div>
-          <div className="flex min-w-0 flex-col gap-5">
+          <div className="flex min-w-0 flex-col gap-stack">
             <GoalsCard goals={goals} date={date} />
             <NewsCard keywords={keywords} />
           </div>

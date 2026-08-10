@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
-import type { Profile } from "@/lib/database.types";
+import type { Profile, ThemeName, UserPreferences } from "@/lib/database.types";
 
 export type SessionState =
   | { status: "no-env" }
@@ -29,6 +29,59 @@ export async function getSessionState(): Promise<SessionState> {
   if (!profile) return { status: "no-profile", email: user.email ?? "" };
 
   return { status: "ok", profile };
+}
+
+export type ViewContext = {
+  /** 화면에 적용할 스킨. "지금 보고 있는 대상 유저"의 테마입니다. */
+  theme: ThemeName;
+  mode: "light" | "dark";
+};
+
+/**
+ * <html> 에 심을 테마를 서버에서 정합니다.
+ * 클라이언트에서 정하면 첫 프레임에 기본 테마가 번쩍이므로 반드시 서버에서.
+ *
+ * 지금은 로그인 유저 = 조회 대상이라 본인 테마입니다.
+ * 6단계에서 친구 기록을 볼 때 "조회 대상"의 테마로 바뀝니다.
+ */
+export async function getViewContext(): Promise<ViewContext> {
+  const fallback: ViewContext = { theme: "moonlight", mode: "light" };
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return fallback;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return fallback;
+
+  const [{ data: profile }, { data: prefs }] = await Promise.all([
+    supabase.from("profiles").select("theme").eq("id", user.id).maybeSingle(),
+    supabase
+      .from("user_preferences")
+      .select("dark_mode")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  return {
+    theme: profile?.theme ?? fallback.theme,
+    mode: prefs?.dark_mode ? "dark" : "light",
+  };
+}
+
+/** 설정 화면에서 쓰는 내 환경설정 (없으면 기본값) */
+export async function getMyPreferences(
+  userId: string
+): Promise<Pick<UserPreferences, "dark_mode">> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("user_preferences")
+    .select("dark_mode")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return { dark_mode: data?.dark_mode ?? false };
 }
 
 /**

@@ -1,13 +1,13 @@
+import Link from "next/link";
 import { CatMascot } from "@/components/Cat";
 import { greeting } from "@/lib/date";
-import { signOut } from "@/app/login/actions";
 import type { Profile } from "@/lib/database.types";
 
 export default function AppHeader({ profile }: { profile: Profile }) {
   const hello = greeting();
 
   return (
-    <header className="flex flex-wrap items-center gap-5 rounded-[34px] border-2 border-line bg-card px-6 py-5 shadow-card max-wide:justify-center max-wide:text-center">
+    <header className="flex flex-wrap items-center gap-5 rounded-card border-2 border-line bg-card p-card shadow-card max-wide:justify-center max-wide:text-center">
       <div className="cat-bob shrink-0">
         <CatMascot size={96} />
       </div>
@@ -27,11 +27,13 @@ export default function AppHeader({ profile }: { profile: Profile }) {
         <span className="rounded-full border-2 border-tone-green bg-tone-green-soft px-3 py-1 text-xs">
           ☁️ 동기화됨
         </span>
-        <form action={signOut}>
-          <button className="min-h-11 rounded-full border-2 border-line px-4 text-xs text-muted transition hover:text-ink">
-            로그아웃
-          </button>
-        </form>
+        {/* 4단계에서 하단 탭이 생기면 그쪽으로 옮깁니다. */}
+        <Link
+          href="/settings"
+          className="min-h-11 rounded-full border-2 border-line px-4 text-xs leading-[2.4rem] text-muted transition hover:text-ink"
+        >
+          ⚙️ 설정
+        </Link>
       </div>
     </header>
   );

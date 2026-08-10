@@ -249,7 +249,15 @@ export default function GoalsCard({
               </div>
 
               {done ? (
-                <span className="mt-1.5 inline-block font-hand text-base font-bold text-accent-strong">
+                <span className="mt-1.5 inline-flex items-center gap-1.5 font-hand text-base font-bold text-accent-strong">
+                  {/* 축하 연출은 테마가 고릅니다.
+                      moonlight = 위쪽 반짝임 / aqua = 이 체크. CSS 가 하나만 보여줍니다. */}
+                  <span
+                    aria-hidden="true"
+                    className="celebrate-check grid size-5 place-items-center rounded-full bg-tone text-on-accent"
+                  >
+                    ✓
+                  </span>
                   달성! 잘했어요 🐾
                 </span>
               ) : null}

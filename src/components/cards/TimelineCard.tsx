@@ -125,7 +125,7 @@ export default function TimelineCard({
             <li
               key={entry.id}
               data-tone={tag?.color_key ?? "gray"}
-              className="group relative flex items-center gap-2.5 rounded-inner py-1.5 pl-1 pr-2 transition hover:bg-tone-soft"
+              className="group relative flex items-center gap-2.5 rounded-inner py-row pl-1 pr-2 transition hover:bg-tone-soft"
             >
               {i < rows.length - 1 ? (
                 <span

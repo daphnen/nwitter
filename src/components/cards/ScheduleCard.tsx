@@ -105,7 +105,7 @@ export default function ScheduleCard({
         {rows.map((item) => (
           <li
             key={item.id}
-            className="group flex items-center gap-2.5 rounded-inner px-2 py-1.5 transition hover:bg-tone-soft"
+            className="group flex items-center gap-2.5 rounded-inner px-2 py-row transition hover:bg-tone-soft"
           >
             <button
               type="button"
@@ -143,7 +143,7 @@ export default function ScheduleCard({
         {events.map((event) => (
           <li
             key={event.id}
-            className="flex items-center gap-2.5 rounded-inner px-2 py-1.5"
+            className="flex items-center gap-2.5 rounded-inner px-2 py-row"
           >
             <span
               aria-hidden="true"

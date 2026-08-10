@@ -47,7 +47,23 @@ npm run dev
 ```
 
 테마 2종 × 라이트/다크 2종 = 팔레트 4벌. `@theme inline` 으로 등록해서
-`data-theme` 만 바꾸면 유틸리티 색이 런타임에 따라옵니다.
+`data-theme` 만 바꾸면 유틸리티가 런타임에 따라옵니다.
+
+색뿐 아니라 **형태도 토큰**입니다. aqua 는 라운드를 덜 주고 여백을 더 씁니다.
+
+| 토큰 | moonlight | aqua |
+| --- | --- | --- |
+| `rounded-card` | 26px | 20px |
+| `rounded-inner` | 16px | 12px |
+| `p-card` | 20px | 24px |
+| `gap-stack` | 20px | 24px |
+| `py-row` | 6px | 10px |
+
+`data-theme` 는 **서버에서** 정해 `<html>` 에 내려보냅니다(루트 레이아웃).
+클라이언트에서 붙이면 첫 프레임에 기본 테마가 번쩍입니다.
+
+목표 달성 축하는 컴포넌트가 두 연출을 모두 렌더링하고 CSS 가 테마에 맞는
+하나만 보여줍니다 — moonlight 는 반짝임, aqua 는 체크.
 
 카드별 색 계열은 카드 루트의 `data-tone="blue|orange|..."` 이 `--tone` /
 `--tone-soft` 를 갈아끼우는 방식입니다. 덕분에 카드 안에서는 `bg-tone`,
@@ -88,7 +104,7 @@ src/
 
 - [x] 1단계 — Next.js 셋업 + 스키마 SQL + 인증
 - [x] 2단계 — 디자인 토큰 + 프로토타입을 moonlight 로 이관
-- [ ] 3단계 — aqua 테마 + 설정에서 전환
+- [x] 3단계 — aqua 테마 + 설정에서 전환
 - [ ] 4단계 — 하단 탭 + 캘린더
 - [ ] 5단계 — 카드 접기 + 순서/숨김
 - [ ] 6단계 — 친구 기록 토글 (테마 전환)
@@ -98,4 +114,9 @@ src/
 ## 임시: /design-preview
 
 Supabase 없이 카드 배치와 테마를 눈으로 확인하기 위한 목데이터 페이지입니다.
-로그인 뒤에만 열립니다. 3단계(aqua 테마) 확인까지 쓰고 지울 예정입니다.
+로그인 뒤에만 열립니다.
+
+- `/design-preview?theme=aqua&mode=dark` — 홈 화면을 팔레트별로
+- `/design-preview/settings?theme=aqua` — 설정 화면을 팔레트별로
+
+4단계(캘린더)까지 쓰고 지울 예정입니다.

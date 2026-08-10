@@ -25,7 +25,7 @@ export default function DashboardCard({
   return (
     <section
       data-tone={tone}
-      className="cat-card rounded-card border-2 border-line bg-card px-5 pb-5 pt-5 shadow-card"
+      className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card"
     >
       <header className="mb-3.5 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-xl">

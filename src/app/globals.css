@@ -3,15 +3,15 @@
 /* ============================================================================
    디자인 토큰
    ---------------------------------------------------------------------------
-   색은 전부 여기서만 정의합니다. 컴포넌트에는 bg-pink-100 같은 하드코딩 색을
-   쓰지 않고 bg-card / text-ink / bg-tone-soft 같은 시맨틱 유틸만 씁니다.
+   색·간격·라운드를 전부 여기서만 정의합니다. 컴포넌트에는 bg-pink-100 이나
+   rounded-[26px] 같은 하드코딩 값을 쓰지 않고 bg-card / p-card / rounded-card
+   같은 시맨틱 유틸만 씁니다. 그래서 테마를 바꿔도 컴포넌트는 그대로입니다.
 
    구조:  <html data-theme="moonlight|aqua" data-mode="light|dark">
    팔레트는 테마 2종 × 라이트/다크 2종 = 4벌.
 
    카드별 색 계열(일정=파랑, 식사=주황, 일과=보라, 목표=초록, 뉴스=노랑)은
    카드 루트의 data-tone 으로 --tone / --tone-soft 를 갈아끼워 표현합니다.
-   덕분에 컴포넌트는 bg-tone 한 가지만 쓰면 됩니다.
    ========================================================================= */
 
 :root {
@@ -29,7 +29,7 @@
 }
 
 /* ---------------------------------------------------------------- moonlight
-   세일러문 무드. 연분홍 → 라벤더, 로즈핑크 + 골드.
+   세일러문 무드. 연분홍 → 라벤더, 로즈핑크 + 골드. 별가루 텍스처.
    ------------------------------------------------------------------------ */
 
 :root,
@@ -53,22 +53,28 @@
   --card-bg: #fffafc;
   --card-bg-subtle: #fff4f9;
   --card-border: #f7e0ed;
-  --card-radius: 26px;
   --card-shadow: 0 16px 32px -20px rgba(206, 116, 163, 0.5);
   --card-shadow-soft: 0 7px 18px -12px rgba(206, 116, 163, 0.45);
+
+  /* 형태 — aqua 는 라운드를 덜 주고 여백을 더 줍니다 */
+  --card-radius: 26px;
+  --inner-radius: 16px;
+  --card-pad: 20px;
+  --stack-gap: 20px;
+  --row-pad: 6px;
 
   --text-primary: #57394c;
   --text-muted: #7b5f70;
 
   --accent: #f191b3;
   --accent-soft: #ffe3ee;
-  --accent-strong: #b8446f;
+  --accent-strong: #a93a61;
   /* --accent 위 글자색. 흰색은 대비 3:1 미만이라 AA 를 못 넘깁니다. */
   --on-accent: #3d1c2b;
 
-  /* 골드 악센트 */
-  --gold: #e8b551;
-  --gold-soft: #fdf0d6;
+  /* 보조 악센트 — moonlight 는 골드, aqua 는 민트 */
+  --accent-alt: #e8b551;
+  --accent-alt-soft: #fdf0d6;
 
   /* 진행 막대: 핑크 → 골드 */
   --progress-from: #f191b3;
@@ -122,8 +128,8 @@
   --accent-strong: #ffc2d8;
   --on-accent: #2a1520;
 
-  --gold: #e6c374;
-  --gold-soft: #4a3d26;
+  --accent-alt: #e6c374;
+  --accent-alt-soft: #4a3d26;
 
   --progress-from: #ef9dbd;
   --progress-to: #e6c374;
@@ -153,6 +159,116 @@
   --cat-blush: #ef9dbd;
 }
 
+/* --------------------------------------------------------------------- aqua
+   미니멀 모던. 옅은 스카이블루 → 화이트, 스틸블루 + 민트.
+   텍스처 없음, 그림자는 얕고 선명하게, 여백은 넉넉하게, 라운드는 덜하게.
+   ------------------------------------------------------------------------ */
+
+[data-theme="aqua"] {
+  --bg-base: #f8fbfe;
+  --bg-gradient: linear-gradient(180deg, #e8f2fa 0%, #f6fbfe 52%, #ffffff 100%);
+  --bg-texture: none;
+  --bg-texture-opacity: 0;
+
+  --card-bg: #ffffff;
+  --card-bg-subtle: #f5f9fc;
+  --card-border: #e3ecf3;
+  --card-shadow: 0 2px 8px -2px rgba(58, 99, 128, 0.16),
+    0 1px 2px rgba(58, 99, 128, 0.08);
+  --card-shadow-soft: 0 1px 4px -1px rgba(58, 99, 128, 0.14);
+
+  --card-radius: 20px;
+  --inner-radius: 12px;
+  --card-pad: 24px;
+  --stack-gap: 24px;
+  --row-pad: 10px;
+
+  --text-primary: #2c3f4f;
+  --text-muted: #556d7c;
+
+  --accent: #6fa3c4;
+  --accent-soft: #e5f0f7;
+  --accent-strong: #245f80;
+  --on-accent: #0f2634;
+
+  --accent-alt: #74c4b4;
+  --accent-alt-soft: #e2f5f1;
+
+  /* 진행 막대: 스틸블루 → 민트 */
+  --progress-from: #6fa3c4;
+  --progress-to: #74c4b4;
+
+  --heading-shadow: none;
+  --sparkle-color: transparent;
+
+  --tone-blue: #8fb6d6;
+  --tone-blue-soft: #e8f1f8;
+  --tone-orange: #e0a98d;
+  --tone-orange-soft: #f8ece5;
+  --tone-purple: #a9a8d4;
+  --tone-purple-soft: #ecebf6;
+  --tone-green: #85c4b3;
+  --tone-green-soft: #e4f3ef;
+  --tone-yellow: #dfc088;
+  --tone-yellow-soft: #f8f0de;
+  --tone-pink: #dda4b8;
+  --tone-pink-soft: #f7e9ee;
+  --tone-mint: #74c4b4;
+  --tone-mint-soft: #e2f5f1;
+  --tone-gray: #a9b8c2;
+  --tone-gray-soft: #eef2f5;
+
+  --cat-fur: #ffffff;
+  --cat-line: #3c5568;
+  --cat-blush: #a9c8dc;
+}
+
+[data-theme="aqua"][data-mode="dark"] {
+  --bg-base: #16212a;
+  --bg-gradient: linear-gradient(180deg, #1c2934 0%, #172129 58%, #131b22 100%);
+
+  --card-bg: #1f2c37;
+  --card-bg-subtle: #263544;
+  --card-border: #33454f;
+  --card-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --card-shadow-soft: 0 1px 4px -1px rgba(0, 0, 0, 0.5);
+
+  --text-primary: #e9f2f8;
+  --text-muted: #a9bfcd;
+
+  --accent: #79aecd;
+  --accent-soft: #2a3f4e;
+  --accent-strong: #a8d4ee;
+  --on-accent: #0e1a22;
+
+  --accent-alt: #6fc0b0;
+  --accent-alt-soft: #263d3a;
+
+  --progress-from: #79aecd;
+  --progress-to: #6fc0b0;
+
+  --tone-blue: #7ea9cc;
+  --tone-blue-soft: #26384a;
+  --tone-orange: #ce9a80;
+  --tone-orange-soft: #3d3229;
+  --tone-purple: #9d9cca;
+  --tone-purple-soft: #313248;
+  --tone-green: #77b8a7;
+  --tone-green-soft: #233c39;
+  --tone-yellow: #d0b27c;
+  --tone-yellow-soft: #3c3524;
+  --tone-pink: #cd97ab;
+  --tone-pink-soft: #3d2e35;
+  --tone-mint: #6fc0b0;
+  --tone-mint-soft: #263d3a;
+  --tone-gray: #93a6b3;
+  --tone-gray-soft: #2c3a45;
+
+  --cat-fur: #fbfdff;
+  --cat-line: #2b3d4b;
+  --cat-blush: #7ea9cc;
+}
+
 /* 카드 계열 색 지정 — data-tone 하나로 --tone / --tone-soft 를 바꿉니다. */
 [data-tone="blue"] { --tone: var(--tone-blue); --tone-soft: var(--tone-blue-soft); }
 [data-tone="orange"] { --tone: var(--tone-orange); --tone-soft: var(--tone-orange-soft); }
@@ -166,7 +282,7 @@
 /* ============================================================================
    Tailwind 토큰 등록
    @theme inline 은 값을 복사하지 않고 var() 참조를 남깁니다.
-   그래서 data-theme / data-tone 만 바꿔도 유틸리티 색이 런타임에 따라옵니다.
+   그래서 data-theme / data-tone 만 바꿔도 유틸리티가 런타임에 따라옵니다.
    ========================================================================= */
 
 @theme inline {
@@ -181,8 +297,8 @@
   --color-accent-soft: var(--accent-soft);
   --color-accent-strong: var(--accent-strong);
   --color-on-accent: var(--on-accent);
-  --color-gold: var(--gold);
-  --color-gold-soft: var(--gold-soft);
+  --color-accent-alt: var(--accent-alt);
+  --color-accent-alt-soft: var(--accent-alt-soft);
 
   /* 카드 계열 색 — data-tone 이 정해준 현재 색 */
   --color-tone: var(--tone);
@@ -209,8 +325,12 @@
   --font-round: var(--stack-round);
   --font-hand: var(--stack-hand);
 
+  /* 형태도 테마 토큰입니다 (aqua 는 라운드가 덜하고 여백이 넓습니다) */
   --radius-card: var(--card-radius);
-  --radius-inner: 16px;
+  --radius-inner: var(--inner-radius);
+  --spacing-card: var(--card-pad);
+  --spacing-stack: var(--stack-gap);
+  --spacing-row: var(--row-pad);
 
   --shadow-card: var(--card-shadow);
   --shadow-card-soft: var(--card-shadow-soft);
@@ -238,7 +358,7 @@
     font-family: var(--stack-round);
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
-    /* 테마 전환용. 6단계에서 친구 기록을 볼 때 부드럽게 넘어갑니다. */
+    /* 친구 기록을 볼 때(6단계) 테마가 부드럽게 넘어가도록 */
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
@@ -252,6 +372,7 @@
     background-image: var(--bg-texture, none);
     background-size: var(--bg-texture-size, auto);
     opacity: var(--bg-texture-opacity, 0);
+    transition: opacity 0.3s ease;
   }
 
   h1,
@@ -289,7 +410,8 @@
   /* 카드 위로 삐죽 나온 고양이 귀 */
   .cat-card {
     position: relative;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease,
+      border-radius 0.3s ease, box-shadow 0.3s ease;
   }
 
   .cat-card::before,
@@ -326,7 +448,6 @@
     }
   }
 
-  /* 진행 막대: 핑크 → 골드 */
   .progress-fill {
     background: linear-gradient(90deg, var(--progress-from), var(--progress-to));
     transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -342,7 +463,10 @@
   }
 }
 
-/* 목표 달성 반짝임 (moonlight) --------------------------------------------- */
+/* ============================================================================
+   목표 달성 축하 — 컴포넌트는 둘 다 렌더링하고, 테마가 하나만 보여줍니다.
+   moonlight: 반짝임 / aqua: 부드러운 체크
+   ========================================================================= */
 
 @keyframes sparkle-pop {
   0% {
@@ -358,11 +482,37 @@
   }
 }
 
+@keyframes check-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .sparkle {
   position: absolute;
   color: var(--sparkle-color);
   animation: sparkle-pop 1.5s ease-out infinite;
   pointer-events: none;
+}
+
+.celebrate-check {
+  animation: check-pop 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+[data-theme="aqua"] .sparkle {
+  display: none;
+}
+[data-theme="moonlight"] .celebrate-check {
+  display: none;
 }
 
 @keyframes bob {
@@ -381,7 +531,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sparkle,
-  .cat-bob {
+  .cat-bob,
+  .celebrate-check {
     animation: none;
   }
   .progress-fill {
