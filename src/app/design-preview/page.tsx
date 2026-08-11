@@ -6,12 +6,9 @@ import BackgroundDecor from "@/components/BackgroundDecor";
 import DateNav from "@/components/DateNav";
 import AppHeader from "@/components/AppHeader";
 import { Paw } from "@/components/Cat";
-import ScheduleCard from "@/components/cards/ScheduleCard";
-import MealsCard from "@/components/cards/MealsCard";
-import TimelineCard from "@/components/cards/TimelineCard";
-import GoalsCard from "@/components/cards/GoalsCard";
-import NewsCard from "@/components/cards/NewsCard";
+import DashboardGrid from "@/components/DashboardGrid";
 import { todayKey } from "@/lib/date";
+import { CARD_KEYS } from "@/lib/database.types";
 import type {
   CalendarEvent,
   DailyLog,
@@ -117,22 +114,22 @@ export default async function PreviewPage({
         <AppHeader profile={profile} />
         <DateNav date={date} />
 
-        <main className="grid items-start gap-stack wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-          <div className="flex min-w-0 flex-col gap-stack">
-            <ScheduleCard
-              date={date}
-              items={schedule}
-              events={events}
-              timetableItems={todayTimetableItems}
-            />
-            <MealsCard date={date} dailyLog={dailyLog} />
-            <TimelineCard date={date} entries={timeline} tags={tags} />
-          </div>
-          <div className="flex min-w-0 flex-col gap-stack">
-            <GoalsCard goals={goals} date={date} />
-            <NewsCard keywords={keywords} />
-          </div>
-        </main>
+        <DashboardGrid
+          date={date}
+          data={{
+            schedule,
+            events,
+            dailyLog,
+            timeline,
+            tags,
+            goals,
+            keywords,
+            timetableItems: todayTimetableItems,
+          }}
+          cardOrder={[...CARD_KEYS]}
+          hiddenCards={[]}
+          collapsedCards={[]}
+        />
 
         <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
           <Paw size={14} /> 오늘도 수고했어요

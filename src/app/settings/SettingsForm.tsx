@@ -8,6 +8,7 @@ import {
   updateTheme,
 } from "@/app/actions/settings";
 import type { ThemeName } from "@/lib/database.types";
+import { quiet } from "@/lib/save";
 
 const THEMES: { key: ThemeName; label: string; blurb: string }[] = [
   { key: "moonlight", label: "moonlight", blurb: "몽환적인 로즈핑크와 별가루" },
@@ -62,19 +63,19 @@ export default function SettingsForm({
     if (next === theme) return;
     setTheme(next);
     document.documentElement.dataset.theme = next;
-    startTransition(() => updateTheme(next));
+    startTransition(quiet(() => updateTheme(next)));
   };
 
   const applyDarkMode = (next: boolean) => {
     setDarkMode(next);
     document.documentElement.dataset.mode = next ? "dark" : "light";
-    startTransition(() => updateDarkMode(next));
+    startTransition(quiet(() => updateDarkMode(next)));
   };
 
   const commitName = () => {
     const trimmed = name.trim();
     if (!trimmed || trimmed === initialName) return;
-    startTransition(() => updateDisplayName(trimmed));
+    startTransition(quiet(() => updateDisplayName(trimmed)));
   };
 
   return (

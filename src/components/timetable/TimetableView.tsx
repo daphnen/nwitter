@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { quiet } from "@/lib/save";
 import { useEffect, useState, useTransition } from "react";
 import TimetableGrid from "./TimetableGrid";
 import { EmptyNote } from "@/components/DashboardCard";
@@ -98,7 +99,7 @@ export default function TimetableView({
     setLocation("");
     setOpenItem(false);
 
-    startTransition(() =>
+    startTransition(quiet(() =>
       addTimetableItem({
         timetableId: selected.id,
         title: trimmed,
@@ -108,7 +109,7 @@ export default function TimetableView({
         endTime: `${endTime}:00`,
         colorKey: color,
       })
-    );
+    ));
   };
 
   const submitTable = (e: React.FormEvent) => {
@@ -119,19 +120,19 @@ export default function TimetableView({
     setFrom("");
     setTo("");
     setOpenTable(false);
-    startTransition(() =>
+    startTransition(quiet(() =>
       addTimetable({
         name: trimmed,
         startDate: from || null,
         endDate: to || null,
         days,
       })
-    );
+    ));
   };
 
   const removeItem = (id: string) => {
     setRows((prev) => prev.filter((r) => r.id !== id));
-    startTransition(() => removeTimetableItem(id));
+    startTransition(quiet(() => removeTimetableItem(id)));
   };
 
   const toggleWeekday = (w: number) =>
@@ -241,7 +242,7 @@ export default function TimetableView({
                     type="button"
                     onClick={() => {
                       if (confirm(`"${t.name}" 시간표를 지울까요? 안의 항목도 함께 사라져요.`))
-                        startTransition(() => removeTimetable(t.id));
+                        startTransition(quiet(() => removeTimetable(t.id)));
                     }}
                     aria-label={`${t.name} 삭제`}
                     className="grid h-11 w-8 place-items-center text-base leading-none text-muted transition hover:text-accent-strong"

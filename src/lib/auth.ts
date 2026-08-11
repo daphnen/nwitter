@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
-import type { Profile, ThemeName, UserPreferences } from "@/lib/database.types";
+import { normalizeCardKeys, normalizeCardOrder } from "@/lib/cards";
+import type { CardKey, Profile, ThemeName } from "@/lib/database.types";
 
 export type SessionState =
   | { status: "no-env" }
@@ -70,18 +71,28 @@ export async function getViewContext(): Promise<ViewContext> {
   };
 }
 
-/** 설정 화면에서 쓰는 내 환경설정 (없으면 기본값) */
-export async function getMyPreferences(
-  userId: string
-): Promise<Pick<UserPreferences, "dark_mode">> {
+export type MyPreferences = {
+  darkMode: boolean;
+  cardOrder: CardKey[];
+  collapsedCards: CardKey[];
+  hiddenCards: CardKey[];
+};
+
+/** 내 환경설정 (행이 없거나 값이 이상해도 항상 쓸 수 있는 형태로) */
+export async function getMyPreferences(userId: string): Promise<MyPreferences> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("user_preferences")
-    .select("dark_mode")
+    .select("*")
     .eq("user_id", userId)
     .maybeSingle();
 
-  return { dark_mode: data?.dark_mode ?? false };
+  return {
+    darkMode: data?.dark_mode ?? false,
+    cardOrder: normalizeCardOrder(data?.card_order),
+    collapsedCards: normalizeCardKeys(data?.collapsed_cards),
+    hiddenCards: normalizeCardKeys(data?.hidden_cards),
+  };
 }
 
 /**

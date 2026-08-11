@@ -9,12 +9,16 @@ import {
 } from "@/app/actions/timeline";
 import { nowTimeKST } from "@/lib/date";
 import type { Tag, TimelineEntry } from "@/lib/database.types";
+import { quiet } from "@/lib/save";
+import type { CardChrome } from "@/lib/cards";
 
 function hhmm(time: string) {
   return time.slice(0, 5);
 }
 
 export default function TimelineCard({
+  collapsed,
+  onToggleCollapse,
   date,
   entries,
   tags,
@@ -22,7 +26,7 @@ export default function TimelineCard({
   date: string;
   entries: TimelineEntry[];
   tags: Tag[];
-}) {
+} & CardChrome) {
   const [rows, setRows] = useState(entries);
   const [content, setContent] = useState("");
   const [atTime, setAtTime] = useState(() => nowTimeKST());
@@ -58,18 +62,20 @@ export default function TimelineCard({
     setContent("");
     setAtTime(nowTimeKST());
 
-    startTransition(() =>
+    startTransition(quiet(() =>
       addTimelineEntry({ date, atTime: time, content: trimmed, tagId })
-    );
+    ));
   };
 
   const remove = (id: string) => {
     setRows((prev) => prev.filter((r) => r.id !== id));
-    startTransition(() => removeTimelineEntry(id));
+    startTransition(quiet(() => removeTimelineEntry(id)));
   };
 
   return (
     <DashboardCard
+      collapsed={collapsed}
+      onToggleCollapse={onToggleCollapse}
       title="하루 일과 기록"
       emoji="🐾"
       tone="purple"

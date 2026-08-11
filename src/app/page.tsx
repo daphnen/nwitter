@@ -3,12 +3,8 @@ import AppHeader from "@/components/AppHeader";
 import BackgroundDecor from "@/components/BackgroundDecor";
 import DateNav from "@/components/DateNav";
 import { CatMascot, Paw } from "@/components/Cat";
-import ScheduleCard from "@/components/cards/ScheduleCard";
-import MealsCard from "@/components/cards/MealsCard";
-import TimelineCard from "@/components/cards/TimelineCard";
-import GoalsCard from "@/components/cards/GoalsCard";
-import NewsCard from "@/components/cards/NewsCard";
-import { getSessionState } from "@/lib/auth";
+import DashboardGrid from "@/components/DashboardGrid";
+import { getMyPreferences, getSessionState } from "@/lib/auth";
 import { getDashboardData } from "@/lib/queries";
 import { todayKey } from "@/lib/date";
 import { signOut } from "./login/actions";
@@ -49,7 +45,10 @@ export default async function HomePage({
   const { date: raw } = await searchParams;
   const date = raw && DATE_PATTERN.test(raw) ? raw : todayKey();
 
-  const data = await getDashboardData(profile.id, date);
+  const [data, prefs] = await Promise.all([
+    getDashboardData(profile.id, date),
+    getMyPreferences(profile.id),
+  ]);
 
   return (
     <>
@@ -59,27 +58,13 @@ export default async function HomePage({
         <AppHeader profile={profile} />
         <DateNav date={date} />
 
-        <main className="grid items-start gap-stack wide:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-          <div className="flex min-w-0 flex-col gap-stack">
-            <ScheduleCard
-              date={date}
-              items={data.schedule}
-              events={data.events}
-              timetableItems={data.timetableItems}
-            />
-            <MealsCard date={date} dailyLog={data.dailyLog} />
-            <TimelineCard
-              date={date}
-              entries={data.timeline}
-              tags={data.tags}
-            />
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-stack">
-            <GoalsCard goals={data.goals} date={date} />
-            <NewsCard keywords={data.keywords} />
-          </div>
-        </main>
+        <DashboardGrid
+          date={date}
+          data={data}
+          cardOrder={prefs.cardOrder}
+          hiddenCards={prefs.hiddenCards}
+          collapsedCards={prefs.collapsedCards}
+        />
 
         <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
           <Paw size={14} /> 오늘도 수고했어요

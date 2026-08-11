@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { quiet } from "@/lib/save";
 import DashboardCard, { EmptyNote } from "@/components/DashboardCard";
 import { Paw } from "@/components/Cat";
 import { AddButton, DeleteButton, inputClass } from "@/components/ui";
@@ -14,12 +15,15 @@ import type {
   ScheduleItem,
   TimetableItem,
 } from "@/lib/database.types";
+import type { CardChrome } from "@/lib/cards";
 
 function hhmm(time: string | null) {
   return time ? time.slice(0, 5) : "";
 }
 
 export default function ScheduleCard({
+  collapsed,
+  onToggleCollapse,
   date,
   items,
   events,
@@ -30,7 +34,7 @@ export default function ScheduleCard({
   events: CalendarEvent[];
   /** 오늘 요일에 걸리는 시간표 항목 (읽기 전용) */
   timetableItems: TimetableItem[];
-}) {
+} & CardChrome) {
   const [rows, setRows] = useState(items);
   const [title, setTitle] = useState("");
   const [atTime, setAtTime] = useState("");
@@ -59,21 +63,21 @@ export default function ScheduleCard({
     setTitle("");
     setAtTime("");
 
-    startTransition(() =>
+    startTransition(quiet(() =>
       addScheduleItem({ date, title: trimmed, atTime: atTime || null })
-    );
+    ));
   };
 
   const toggle = (item: ScheduleItem) => {
     setRows((prev) =>
       prev.map((r) => (r.id === item.id ? { ...r, done: !r.done } : r))
     );
-    startTransition(() => toggleScheduleItem(item.id, !item.done));
+    startTransition(quiet(() => toggleScheduleItem(item.id, !item.done)));
   };
 
   const remove = (id: string) => {
     setRows((prev) => prev.filter((r) => r.id !== id));
-    startTransition(() => removeScheduleItem(id));
+    startTransition(quiet(() => removeScheduleItem(id)));
   };
 
   const doneCount = rows.filter((r) => r.done).length;
@@ -82,6 +86,8 @@ export default function ScheduleCard({
 
   return (
     <DashboardCard
+      collapsed={collapsed}
+      onToggleCollapse={onToggleCollapse}
       title="오늘의 일정"
       emoji="🗓"
       tone="blue"

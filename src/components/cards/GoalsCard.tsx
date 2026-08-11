@@ -5,6 +5,8 @@ import DashboardCard, { EmptyNote } from "@/components/DashboardCard";
 import { AddButton, GhostButton, inputClass } from "@/components/ui";
 import { addGoal, removeGoal, setGoalProgress } from "@/app/actions/goals";
 import type { GoalPeriod } from "@/lib/database.types";
+import { quiet } from "@/lib/save";
+import type { CardChrome } from "@/lib/cards";
 import type { GoalWithProgress } from "@/lib/queries";
 
 const EMOJIS = ["🎯", "📚", "🏃", "💧", "🧘", "💻", "🎨", "🌱"];
@@ -18,12 +20,14 @@ const SPARKLES = [
 ];
 
 export default function GoalsCard({
+  collapsed,
+  onToggleCollapse,
   goals,
   date,
 }: {
   goals: GoalWithProgress[];
   date: string;
-}) {
+} & CardChrome) {
   const [rows, setRows] = useState(goals);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -62,14 +66,14 @@ export default function GoalsCard({
       )
     );
 
-    startTransition(() =>
+    startTransition(quiet(() =>
       setGoalProgress({
         goalId: goal.id,
         periodStart: goal.periodStart,
         progress: next,
         target: goal.target,
       })
-    );
+    ));
   };
 
   const submit = (e: React.FormEvent) => {
@@ -80,25 +84,27 @@ export default function GoalsCard({
     setTitle("");
     setTarget("1");
     setOpen(false);
-    startTransition(() =>
+    startTransition(quiet(() =>
       addGoal({
         title: trimmed,
         emoji,
         target: Number(target) || 1,
         period,
       })
-    );
+    ));
   };
 
   const remove = (id: string) => {
     setRows((prev) => prev.filter((g) => g.id !== id));
-    startTransition(() => removeGoal(id));
+    startTransition(quiet(() => removeGoal(id)));
   };
 
   const achieved = rows.filter((g) => progressOf(g) >= g.target).length;
 
   return (
     <DashboardCard
+      collapsed={collapsed}
+      onToggleCollapse={onToggleCollapse}
       title="나의 목표"
       emoji="🎯"
       tone="green"

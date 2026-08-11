@@ -14,6 +14,7 @@ import {
   toMonthKey,
 } from "@/lib/date";
 import type { CalendarEvent, ColorKey, Profile } from "@/lib/database.types";
+import { quiet } from "@/lib/save";
 
 const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -94,7 +95,7 @@ export default function CalendarView({
     ]);
     setTitle("");
 
-    startTransition(() =>
+    startTransition(quiet(() =>
       addEvent({
         title: trimmed,
         startDate: selectedDate,
@@ -103,12 +104,12 @@ export default function CalendarView({
         startTime: allDay ? null : `${startTime}:00`,
         owner,
       })
-    );
+    ));
   };
 
   const remove = (id: string) => {
     setRows((prev) => prev.filter((r) => r.id !== id));
-    startTransition(() => removeEvent(id));
+    startTransition(quiet(() => removeEvent(id)));
   };
 
   return (

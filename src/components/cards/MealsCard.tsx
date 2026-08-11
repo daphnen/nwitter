@@ -5,6 +5,8 @@ import DashboardCard from "@/components/DashboardCard";
 import { softInputClass } from "@/components/ui";
 import { saveMeal, type MealSlot } from "@/app/actions/meals";
 import type { DailyLog } from "@/lib/database.types";
+import { quiet } from "@/lib/save";
+import type { CardChrome } from "@/lib/cards";
 
 const SLOTS: {
   key: MealSlot;
@@ -30,12 +32,14 @@ function toMeals(log: DailyLog | null): Meals {
 }
 
 export default function MealsCard({
+  collapsed,
+  onToggleCollapse,
   date,
   dailyLog,
 }: {
   date: string;
   dailyLog: DailyLog | null;
-}) {
+} & CardChrome) {
   const [meals, setMeals] = useState<Meals>(() => toMeals(dailyLog));
   const [, startTransition] = useTransition();
 
@@ -43,19 +47,21 @@ export default function MealsCard({
 
   const commitText = (slot: MealSlot, text: string) => {
     if (text.trim() === (dailyLog?.[slot] ?? "")) return;
-    startTransition(() => saveMeal({ date, slot, text }));
+    startTransition(quiet(() => saveMeal({ date, slot, text })));
   };
 
   const pickMood = (slot: MealSlot, mood: string) => {
     const next = meals[slot].mood === mood ? "" : mood;
     setMeals((prev) => ({ ...prev, [slot]: { ...prev[slot], mood: next } }));
-    startTransition(() => saveMeal({ date, slot, mood: next }));
+    startTransition(quiet(() => saveMeal({ date, slot, mood: next })));
   };
 
   const filled = SLOTS.filter((s) => meals[s.key].text.trim()).length;
 
   return (
     <DashboardCard
+      collapsed={collapsed}
+      onToggleCollapse={onToggleCollapse}
       title="오늘 뭐 먹었나요"
       emoji="🍚"
       tone="orange"

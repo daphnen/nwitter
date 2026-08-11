@@ -5,6 +5,7 @@ import { CatMascot, Paw } from "@/components/Cat";
 import { getMyPreferences, getSessionState } from "@/lib/auth";
 import { signOut } from "@/app/login/actions";
 import SettingsForm from "./SettingsForm";
+import CardOrderEditor from "./CardOrderEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -34,11 +35,17 @@ export default async function SettingsPage() {
           </Link>
         </header>
 
-        <SettingsForm
-          initialTheme={profile.theme}
-          initialDarkMode={prefs.dark_mode}
-          initialName={profile.display_name}
-        />
+        <div className="flex flex-col gap-stack">
+          <SettingsForm
+            initialTheme={profile.theme}
+            initialDarkMode={prefs.darkMode}
+            initialName={profile.display_name}
+          />
+          <CardOrderEditor
+            initialOrder={prefs.cardOrder}
+            initialHidden={prefs.hiddenCards}
+          />
+        </div>
 
         <form action={signOut} className="mt-stack flex justify-center">
           <button className="min-h-11 rounded-full border-2 border-line px-5 text-sm text-muted transition hover:text-ink">

@@ -5,8 +5,14 @@ import DashboardCard, { EmptyNote } from "@/components/DashboardCard";
 import { AddButton, GhostButton, inputClass } from "@/components/ui";
 import { addKeyword, removeKeyword } from "@/app/actions/news";
 import type { NewsKeyword } from "@/lib/database.types";
+import { quiet } from "@/lib/save";
+import type { CardChrome } from "@/lib/cards";
 
-export default function NewsCard({ keywords }: { keywords: NewsKeyword[] }) {
+export default function NewsCard({
+  keywords,
+  collapsed,
+  onToggleCollapse,
+}: { keywords: NewsKeyword[] } & CardChrome) {
   const [rows, setRows] = useState(keywords);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
@@ -35,16 +41,18 @@ export default function NewsCard({ keywords }: { keywords: NewsKeyword[] }) {
     ]);
     setDraft("");
     setOpen(false);
-    startTransition(() => addKeyword(trimmed));
+    startTransition(quiet(() => addKeyword(trimmed)));
   };
 
   const remove = (id: string) => {
     setRows((prev) => prev.filter((r) => r.id !== id));
-    startTransition(() => removeKeyword(id));
+    startTransition(quiet(() => removeKeyword(id)));
   };
 
   return (
     <DashboardCard
+      collapsed={collapsed}
+      onToggleCollapse={onToggleCollapse}
       title="관심 뉴스"
       emoji="📰"
       tone="yellow"

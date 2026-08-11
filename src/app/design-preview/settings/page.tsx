@@ -3,6 +3,8 @@ import Link from "next/link";
 import BackgroundDecor from "@/components/BackgroundDecor";
 import { CatMascot, Paw } from "@/components/Cat";
 import SettingsForm from "@/app/settings/SettingsForm";
+import CardOrderEditor from "@/app/settings/CardOrderEditor";
+import { CARD_KEYS } from "@/lib/database.types";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +43,17 @@ export default async function PreviewSettings({
           </Link>
         </header>
 
-        <SettingsForm
-          initialTheme={theme}
-          initialDarkMode={mode === "dark"}
-          initialName="다프네"
-        />
+        <div className="flex flex-col gap-stack">
+          <SettingsForm
+            initialTheme={theme}
+            initialDarkMode={mode === "dark"}
+            initialName="다프네"
+          />
+          <CardOrderEditor
+            initialOrder={[...CARD_KEYS]}
+            initialHidden={["news"]}
+          />
+        </div>
 
         <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
           <Paw size={14} /> 오늘도 수고했어요
