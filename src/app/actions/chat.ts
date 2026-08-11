@@ -1,7 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { NOT_SIGNED_IN, currentUser, saveError, type SaveResult } from "./common";
+import { PAGE_SIZE } from "@/lib/chat";
 import type { Message } from "@/lib/database.types";
 
 /** 한 통에 담을 수 있는 글자 수. 실수로 붙여넣은 장문을 막는 정도의 상한입니다. */
@@ -40,7 +40,12 @@ export async function sendMessage(content: string): Promise<SendResult> {
     .update({ chat_read_at: new Date().toISOString() })
     .eq("user_id", auth.userId);
 
-  revalidatePath("/chat");
+  /*
+   * 일부러 revalidatePath 를 부르지 않습니다.
+   * 채팅 화면을 다시 그리면 서버가 준 "최신 50개"로 목록이 초기화되면서,
+   * 위로 스크롤해 불러온 이전 메시지와 스크롤 위치가 통째로 날아갑니다.
+   * 화면 갱신은 낙관적 업데이트와 실시간 수신이 맡습니다.
+   */
   return { sent: data };
 }
 
@@ -62,8 +67,6 @@ export async function deleteMessage(id: string): Promise<SaveResult> {
     .eq("sender_id", auth.userId); // RLS 도 막지만 의도를 코드에 남깁니다
 
   if (error) return saveError(error);
-
-  revalidatePath("/chat");
   return {};
 }
 
@@ -77,6 +80,41 @@ export async function markChatRead(): Promise<void> {
     .update({ chat_read_at: new Date().toISOString() })
     .eq("user_id", auth.userId);
 
-  // 하단 탭의 안 읽은 점은 루트 레이아웃이 그리므로 layout 까지 다시 그립니다.
-  revalidatePath("/", "layout");
+  /*
+   * 여기서도 revalidate 하지 않습니다. 채팅 화면에 있는 동안에는 어차피
+   * 점이 숨겨져 있고, 다른 탭으로 옮기면 그때 레이아웃이 다시 그려지면서
+   * 최신 상태로 계산됩니다.
+   */
+}
+
+export type OlderResult = {
+  items: Message[];
+  /** 더 위로 남은 게 있는지 */
+  hasMore: boolean;
+  message?: string;
+};
+
+/**
+ * beforeSeq 보다 앞선 메시지들.
+ *
+ * 커서를 seq 로 잡습니다. created_at 이었다면 같은 순간에 들어온 두 줄에서
+ * 한 통이 건너뛰거나 두 번 실릴 수 있습니다.
+ */
+export async function loadOlderMessages(beforeSeq: number): Promise<OlderResult> {
+  const auth = await currentUser();
+  if (!auth) return { items: [], hasMore: false, message: NOT_SIGNED_IN.message };
+
+  const { data, error } = await auth.supabase
+    .from("messages")
+    .select("*")
+    .lt("seq", beforeSeq)
+    .order("seq", { ascending: false })
+    .limit(PAGE_SIZE);
+
+  if (error) {
+    return { items: [], hasMore: true, message: saveError(error).message };
+  }
+
+  const rows = data ?? [];
+  return { items: rows.slice().reverse(), hasMore: rows.length === PAGE_SIZE };
 }

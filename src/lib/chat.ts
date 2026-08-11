@@ -1,6 +1,25 @@
 import { TIME_ZONE, formatKo, shiftKey, toKey, todayKey } from "@/lib/date";
 import type { Message } from "@/lib/database.types";
 
+/** 처음에 받는 개수이자, 위로 스크롤할 때 한 번에 더 받아오는 개수 */
+export const PAGE_SIZE = 50;
+
+/**
+ * 같은 id 가 있으면 갈아끼우고, 없으면 넣고 seq 순으로 정렬합니다.
+ *
+ * 내가 보낸 메시지는 서버 액션 응답과 실시간 수신으로 두 번 들어옵니다.
+ * id 로 걸러내지 않으면 말풍선이 두 개가 됩니다.
+ */
+export function upsertMessage(list: Message[], row: Message): Message[] {
+  const at = list.findIndex((m) => m.id === row.id);
+  if (at >= 0) {
+    const next = list.slice();
+    next[at] = row;
+    return next;
+  }
+  return [...list, row].sort((a, b) => a.seq - b.seq);
+}
+
 /** 화면에 그릴 때 붙는 정보. 서버에서 온 줄은 건드리지 않습니다. */
 export type Bubble = {
   message: Message;

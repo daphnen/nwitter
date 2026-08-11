@@ -794,6 +794,13 @@
   flex-direction: column;
   /* 목록 끝에서 더 당겨도 화면 전체가 따라 움직이지 않게 */
   overscroll-behavior: contain;
+  /*
+   * 브라우저 기본 스크롤 앵커링을 끕니다.
+   * 크롬은 위에 내용이 끼워지면 알아서 위치를 잡아주는데, 사파리에는 그
+   * 기능이 없습니다. 켜 둔 채로 코드에서도 보정하면 크롬에서만 두 배로
+   * 밀립니다. 브라우저마다 다르게 동작하느니 한쪽으로 통일합니다.
+   */
+  overflow-anchor: none;
   -webkit-overflow-scrolling: touch;
 }
 

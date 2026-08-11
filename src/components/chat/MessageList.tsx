@@ -12,6 +12,7 @@ const MessageList = forwardRef<
   HTMLDivElement,
   {
     bubbles: Bubble[];
+    onScroll: () => void;
     me: Profile;
     partner: Profile | null;
     mode: "light" | "dark";
@@ -19,7 +20,10 @@ const MessageList = forwardRef<
     onDiscard: (localId: string) => void;
     onDelete: (id: string) => void;
   }
->(function MessageList({ bubbles, me, partner, mode, onRetry, onDiscard, onDelete }, ref) {
+>(function MessageList(
+  { bubbles, onScroll, me, partner, mode, onRetry, onDiscard, onDelete },
+  ref
+) {
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -27,7 +31,7 @@ const MessageList = forwardRef<
 
   if (bubbles.length === 0) {
     return (
-      <div ref={ref} className="chat-scroll grid place-items-center px-8 text-center">
+      <div ref={ref} onScroll={onScroll} className="chat-scroll grid place-items-center px-8 text-center">
         <div>
           <div className="cat-bob mx-auto w-fit">
             <CatMascot size={76} mood="sleepy" />
@@ -49,7 +53,7 @@ const MessageList = forwardRef<
   const holdEnd = () => clearTimeout(timer.current);
 
   return (
-    <div ref={ref} className="chat-scroll px-3 py-3">
+    <div ref={ref} onScroll={onScroll} className="chat-scroll px-3 py-3">
       <ul className="mx-auto mt-auto flex w-full max-w-[720px] flex-col gap-0.5">
         {bubbles.map((b) => {
           const sender = b.mine ? me : partner;
