@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Gaegu, Jua } from "next/font/google";
 import BottomTabs from "@/components/BottomTabs";
+import ServiceWorker from "@/components/ServiceWorker";
 import ThemeBackdrop from "@/components/ThemeBackdrop";
 import { getViewContext } from "@/lib/auth";
 import "./globals.css";
@@ -25,10 +26,36 @@ const gaegu = Gaegu({
 export const metadata: Metadata = {
   title: "🐱 우리의 대시보드",
   description: "둘이서 함께 쓰는 하루 기록 대시보드",
+  applicationName: "우리의 대시보드",
+  manifest: "/manifest.webmanifest",
+  // iOS 는 manifest 를 거의 안 봅니다. 홈 화면에 추가했을 때 주소창 없이
+  // 앱처럼 뜨게 하려면 이 메타태그들이 따로 있어야 합니다.
+  appleWebApp: {
+    capable: true,
+    title: "우리의 대시보드",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
+    shortcut: "/favicon.ico",
+  },
+  // 날짜/시간 문자열을 사파리가 전화번호 링크로 바꾸는 걸 막습니다.
+  formatDetection: { telephone: false },
+  other: {
+    // Next 는 표준 이름인 mobile-web-app-capable 만 내보냅니다.
+    // 구형 iOS 는 apple- 접두사 붙은 쪽만 보고 주소창을 숨깁니다.
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fff6ef",
+  // 홈 화면에서 켰을 때 상단 상태바 색. moonlight 라이트 모드의 --bg-base 입니다.
+  // 테마를 바꾸면 ThemeBackdrop 이 이 값을 실제 배경색으로 맞춰줍니다.
+  themeColor: "#fdf3f8",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -57,6 +84,7 @@ export default async function RootLayout({
         <ThemeBackdrop theme={theme} mode={mode} />
         {children}
         <BottomTabs />
+        <ServiceWorker />
       </body>
     </html>
   );

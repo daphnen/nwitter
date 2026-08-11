@@ -382,9 +382,42 @@
     text-shadow: var(--heading-shadow, none);
   }
 
+  /*
+   * 더블탭 확대를 기다리느라 생기는 탭 지연을 없앱니다.
+   * 링크에도 걸려야 합니다 — 하단 탭·날짜 화살표·캘린더 칸이 전부 <a> 입니다.
+   * manipulation 은 더블탭 확대만 끄고 스크롤·핀치 확대는 그대로 둡니다.
+   */
+  html {
+    touch-action: manipulation;
+    /* 기본 회색 사각형 대신 아래에서 직접 만든 피드백을 씁니다 */
+    -webkit-tap-highlight-color: transparent;
+  }
+  /*
+   * touch-action 은 상속되는 속성이 아니라, 브라우저가 조상까지 거슬러 올라가며
+   * 교집합을 냅니다. 그래서 html 하나로 충분하지만 예전 사파리에서 어긋나는
+   * 사례가 있어 실제로 누르는 요소에도 한 번 더 못박아 둡니다.
+   */
   button,
+  a,
+  label,
+  summary,
+  select,
   [role="button"] {
     touch-action: manipulation;
+  }
+
+  /*
+   * 눌린 게 눈에 보여야 합니다. 피드백이 없으면 같은 속도라도 느리게 느껴집니다.
+   * 드래그 손잡이는 dnd-kit 이 transform 을 직접 잡으므로 제외합니다.
+   */
+  button:active,
+  a:active,
+  label:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+  [aria-roledescription="sortable"]:active {
+    transform: none;
   }
 
   ::selection {
@@ -541,6 +574,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  button:active,
+  a:active,
+  label:active,
+  [role="button"]:active {
+    transform: none;
+  }
+
   .sparkle,
   .cat-bob,
   .celebrate-check {

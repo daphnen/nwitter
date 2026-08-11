@@ -29,6 +29,13 @@ export default function ThemeBackdrop({
     const sync = () => {
       setTheme(root.dataset.theme === "aqua" ? "aqua" : "moonlight");
       setMode(root.dataset.mode === "dark" ? "dark" : "light");
+
+      // 홈 화면에 추가해서 켰을 때 상태바 색까지 같이 따라오게 합니다.
+      // layout 의 themeColor 는 moonlight 라이트 하나뿐이라 나머지 세 조합은
+      // 여기서 실제 --bg-base 를 읽어 맞춥니다.
+      const base = getComputedStyle(root).getPropertyValue("--bg-base").trim();
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (base && meta) meta.setAttribute("content", base);
     };
 
     sync();
