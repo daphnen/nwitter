@@ -172,6 +172,11 @@ export type UserPreferences = {
   dark_mode: boolean;
   /** 채팅을 어디까지 봤는지. 안 읽은 점(●) 하나 띄우는 데만 씁니다. */
   chat_read_at: string;
+  /**
+   * 이 시각까지는 채팅 화면을 보고 있는 중. 지나면 저절로 풀립니다.
+   * 보고 있는 사람에게는 알림을 보내지 않는 데 씁니다.
+   */
+  chat_active_until: string | null;
   updated_at: string;
 };
 

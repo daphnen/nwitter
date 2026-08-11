@@ -8,7 +8,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   deleteMessage,
   loadOlderMessages,
-  markChatRead,
+  markChatActive,
   sendMessage,
 } from "@/app/actions/chat";
 import {
@@ -64,25 +64,38 @@ export default function ChatView({
    */
 
   /*
-   * "여기까지 봤다"를 갱신합니다.
+   * "지금 이 화면을 보고 있다"를 서버에 알립니다.
    *
-   * 열 때 한 번이면 하단 탭의 점을 끄는 데는 충분합니다. 그런데 서버는 이
-   * 시각으로 "지금 채팅을 보고 있는지"를 판단해 푸시를 건너뛰므로, 화면을
-   * 켜둔 채 가만히 있으면 값이 낡아서 보고 있는데도 알림이 옵니다.
-   * 그래서 화면이 보이는 동안에는 주기적으로도 찍어둡니다.
+   * 보이는 동안에는 주기적으로 미뤄두고, 화면을 벗어나거나 다른 탭으로
+   * 옮기면 그 자리에서 지웁니다. 그래야 채팅을 떠나는 즉시 알림이
+   * 살아납니다. 앱이 갑자기 꺼져 "떠났다"를 못 보내도 유효기간이 지나면
+   * 저절로 풀립니다.
    */
   useEffect(() => {
-    const touch = () => {
-      if (document.hidden) return;
-      markChatRead().catch((error) => console.error("읽음 표시 실패:", error));
+    const tell = (active: boolean) => {
+      markChatActive(active).catch((error) =>
+        console.error("보는 중 표시 실패:", error)
+      );
     };
 
-    touch();
-    const timer = setInterval(touch, CHAT_HEARTBEAT_MS);
-    document.addEventListener("visibilitychange", touch);
+    const onVisibility = () => tell(!document.hidden);
+    // 앱을 닫거나 뒤로 갈 때. 못 보내고 꺼져도 유효기간이 막아줍니다.
+    const onHide = () => tell(false);
+
+    tell(true);
+    const timer = setInterval(() => {
+      if (!document.hidden) tell(true);
+    }, CHAT_HEARTBEAT_MS);
+
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", onHide);
+
     return () => {
       clearInterval(timer);
-      document.removeEventListener("visibilitychange", touch);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", onHide);
+      // 다른 탭으로 옮겨 이 화면이 사라질 때
+      tell(false);
     };
   }, []);
 
@@ -182,7 +195,8 @@ export default function ChatView({
 
       if (atBottom.current) {
         // 실제 스크롤은 위 이펙트가 커밋 뒤에 합니다.
-        markChatRead().catch(() => {});
+        // 보고 있는 중이니 읽음·보는중 표시를 함께 미뤄둡니다.
+        markChatActive(true).catch(() => {});
       } else {
         setNewBelow(true);
       }

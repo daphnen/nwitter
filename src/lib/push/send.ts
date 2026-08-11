@@ -2,7 +2,6 @@ import "server-only";
 
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { VIEWING_WINDOW_MS } from "@/lib/chat";
 import { VAPID_PUBLIC_KEY } from "./env";
 
 /** 알림 본문에 넣을 최대 길이. 길면 잘라서 뒤에 … 를 붙입니다. */
@@ -169,18 +168,20 @@ export async function pushToUser(
 export async function notifyChat(notice: ChatNotice): Promise<void> {
   const admin = createAdminClient();
   if (admin) {
+    /*
+     * 채팅 화면이 보이는 동안 상대 쪽에서 이 시각을 계속 미뤄둡니다.
+     * 화면을 벗어나면 그 자리에서 지우므로, 떠나는 즉시 알림이 살아납니다.
+     */
     const { data: prefs } = await admin
       .from("user_preferences")
-      .select("chat_read_at")
+      .select("chat_active_until")
       .eq("user_id", notice.toUserId)
       .maybeSingle();
 
-    if (prefs?.chat_read_at) {
-      const idle = Date.now() - new Date(prefs.chat_read_at).getTime();
-      if (idle < VIEWING_WINDOW_MS) {
-        console.log(`[푸시] 건너뜀 — 상대가 ${Math.round(idle / 1000)}초 전에 채팅을 봤습니다.`);
-        return;
-      }
+    const until = prefs?.chat_active_until;
+    if (until && new Date(until).getTime() > Date.now()) {
+      console.log("[푸시] 건너뜀 — 상대가 지금 채팅을 보고 있습니다.");
+      return;
     }
   }
 

@@ -5,21 +5,18 @@ import type { Message } from "@/lib/database.types";
 export const PAGE_SIZE = 50;
 
 /*
- * "지금 채팅을 보고 있는지" 판정에 쓰는 두 값.
+ * "지금 채팅을 보고 있는지" 판정.
  *
- * 채팅 화면이 켜져 있는 동안 CHAT_HEARTBEAT_MS 간격으로 "봤음"을 찍고,
- * 서버는 그 시각이 VIEWING_WINDOW_MS 안쪽이면 보는 중으로 보고 알림을
- * 건너뜁니다.
+ * 채팅 화면이 보이는 동안 CHAT_HEARTBEAT_MS 마다 "이 시각까지 보는 중"을
+ * 찍고, 화면을 벗어나면 그 자리에서 지웁니다. 그래서 채팅을 떠나는 즉시
+ * 알림이 살아납니다.
  *
- * 둘은 같이 움직여야 합니다. 창만 줄이면 심박 사이에 낀 메시지가 알림으로
- * 나가서, 화면을 보고 있는데도 알림이 옵니다. 그래서 창을 심박의 두 배로
- * 묶어뒀습니다.
- *
- * 창 길이는 "채팅을 떠난 뒤 알림이 다시 오기까지의 지연"이기도 합니다.
- * 짧을수록 반응이 빠르고, 대신 화면을 켜둔 채 요청을 더 자주 보냅니다.
+ * CHAT_ACTIVE_TTL_MS 는 신호가 끊겼을 때의 안전장치입니다. 앱이 갑자기
+ * 꺼져 "떠났다"를 못 보내도 이 시간이 지나면 저절로 풀립니다. 심박보다
+ * 넉넉히 길어야 보고 있는 도중에 끊기지 않습니다.
  */
-export const CHAT_HEARTBEAT_MS = 15_000;
-export const VIEWING_WINDOW_MS = CHAT_HEARTBEAT_MS * 2;
+export const CHAT_HEARTBEAT_MS = 10_000;
+export const CHAT_ACTIVE_TTL_MS = CHAT_HEARTBEAT_MS * 2.5;
 
 /**
  * 같은 id 가 있으면 갈아끼우고, 없으면 넣고 seq 순으로 정렬합니다.

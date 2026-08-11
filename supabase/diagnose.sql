@@ -130,12 +130,12 @@ order by p.email;
 
 
 -- 상대가 "채팅을 보고 있는 중"으로 판정되고 있는지.
--- 서버는 chat_read_at 이 75초 안쪽이면 알림을 건너뜁니다.
+-- 채팅 화면을 보는 동안 chat_active_until 이 계속 미뤄지고, 벗어나면 지워집니다.
 select
   p.display_name,
-  w.chat_read_at,
-  round(extract(epoch from (now() - w.chat_read_at)))  as 몇초전에_봤나,
-  (now() - w.chat_read_at) < interval '75 seconds'     as 지금_보는중으로_판정
+  w.chat_read_at                                       as 마지막으로_읽은_시각,
+  w.chat_active_until,
+  coalesce(w.chat_active_until > now(), false)         as 지금_보는중
 from public.profiles p
 join public.user_preferences w on w.user_id = p.id
 order by p.email;

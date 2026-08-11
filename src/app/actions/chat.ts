@@ -4,7 +4,7 @@ import { after } from "next/server";
 import { NOT_SIGNED_IN, currentUser, saveError, type SaveResult } from "./common";
 import { notifyChat } from "@/lib/push/send";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PAGE_SIZE } from "@/lib/chat";
+import { CHAT_ACTIVE_TTL_MS, PAGE_SIZE } from "@/lib/chat";
 import type { Database, Message } from "@/lib/database.types";
 
 /** 한 통에 담을 수 있는 글자 수. 실수로 붙여넣은 장문을 막는 정도의 상한입니다. */
@@ -105,21 +105,36 @@ export async function deleteMessage(id: string): Promise<SaveResult> {
   return {};
 }
 
-/** 채팅을 열었을 때 "여기까지 봤다"를 갱신합니다. */
-export async function markChatRead(): Promise<void> {
+/**
+ * 채팅 화면을 보고 있는지 알립니다.
+ *
+ * 시각 계산은 서버에서 합니다. 브라우저 시계가 틀어져 있으면 "언제까지
+ * 보는 중"이 엉뚱한 값이 되어, 알림이 영영 안 오거나 항상 오게 됩니다.
+ *
+ * 켤 때는 읽은 시각도 같이 찍습니다. 보고 있다는 건 읽었다는 뜻이고,
+ * 요청도 한 번으로 끝납니다.
+ *
+ * revalidate 는 하지 않습니다. 채팅 화면에 있는 동안에는 하단 탭의 점이
+ * 어차피 숨겨져 있고, 다른 탭으로 옮기면 그때 레이아웃이 다시 그려집니다.
+ */
+export async function markChatActive(active: boolean): Promise<void> {
   const auth = await currentUser();
   if (!auth) return;
 
+  const now = Date.now();
+
   await auth.supabase
     .from("user_preferences")
-    .update({ chat_read_at: new Date().toISOString() })
+    .update(
+      active
+        ? {
+            chat_read_at: new Date(now).toISOString(),
+            chat_active_until: new Date(now + CHAT_ACTIVE_TTL_MS).toISOString(),
+          }
+        : // 떠날 때 읽은 시각은 건드리지 않습니다. 그건 별개입니다.
+          { chat_active_until: null }
+    )
     .eq("user_id", auth.userId);
-
-  /*
-   * 여기서도 revalidate 하지 않습니다. 채팅 화면에 있는 동안에는 어차피
-   * 점이 숨겨져 있고, 다른 탭으로 옮기면 그때 레이아웃이 다시 그려지면서
-   * 최신 상태로 계산됩니다.
-   */
 }
 
 export type OlderResult = {
