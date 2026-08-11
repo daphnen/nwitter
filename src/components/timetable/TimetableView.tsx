@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { quiet } from "@/lib/save";
 import { useEffect, useState, useTransition } from "react";
 import TimetableGrid from "./TimetableGrid";
 import { EmptyNote } from "@/components/DashboardCard";
@@ -20,6 +19,7 @@ import {
   weekdaysOf,
 } from "@/lib/timetable";
 import { todayKey } from "@/lib/date";
+import type { SaveResult } from "@/app/actions/common";
 import type {
   ColorKey,
   Timetable,
@@ -55,7 +55,33 @@ export default function TimetableView({
   const [showPartner, setShowPartner] = useState(false);
   const [openItem, setOpenItem] = useState(false);
   const [openTable, setOpenTable] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+
+  /**
+   * 저장을 걸고 결과를 봅니다.
+   * 실패하면 사유를 띄우고, 미리 그려둔 항목은 되돌립니다.
+   * 실패를 삼키면 "눌렀는데 아무 일도 안 일어나요" 가 됩니다.
+   */
+  const save = (run: () => Promise<SaveResult>, rollback?: () => void) => {
+    startTransition(async () => {
+      try {
+        const result = await run();
+        if (result?.message) {
+          setProblem(result.message);
+          rollback?.();
+        } else {
+          setProblem(null);
+        }
+      } catch (error) {
+        console.error(error);
+        setProblem(
+          "저장 중에 연결이 끊겼어요. 인터넷을 확인하고 다시 시도해 주세요."
+        );
+        rollback?.();
+      }
+    });
+  };
 
   // 새 항목 입력
   const [title, setTitle] = useState("");
@@ -79,10 +105,11 @@ export default function TimetableView({
     const trimmed = title.trim();
     if (!trimmed || weekdays.length === 0 || endTime <= startTime) return;
 
+    const stamp = Date.now();
     setRows((prev) => [
       ...prev,
       ...weekdays.map((weekday) => ({
-        id: `tmp-${weekday}-${Date.now()}`,
+        id: `tmp-${weekday}-${stamp}`,
         timetable_id: selected.id,
         user_id: selected.user_id,
         title: trimmed,
@@ -99,17 +126,20 @@ export default function TimetableView({
     setLocation("");
     setOpenItem(false);
 
-    startTransition(quiet(() =>
-      addTimetableItem({
-        timetableId: selected.id,
-        title: trimmed,
-        location,
-        weekdays,
-        startTime: `${startTime}:00`,
-        endTime: `${endTime}:00`,
-        colorKey: color,
-      })
-    ));
+    save(
+      () =>
+        addTimetableItem({
+          timetableId: selected.id,
+          title: trimmed,
+          location,
+          weekdays,
+          startTime: `${startTime}:00`,
+          endTime: `${endTime}:00`,
+          colorKey: color,
+        }),
+      // 실패하면 방금 그려둔 임시 항목을 도로 걷어냅니다.
+      () => setRows((prev) => prev.filter((r) => !r.id.endsWith(`-${stamp}`)))
+    );
   };
 
   const submitTable = (e: React.FormEvent) => {
@@ -120,19 +150,23 @@ export default function TimetableView({
     setFrom("");
     setTo("");
     setOpenTable(false);
-    startTransition(quiet(() =>
+    save(() =>
       addTimetable({
         name: trimmed,
         startDate: from || null,
         endDate: to || null,
         days,
       })
-    ));
+    );
   };
 
   const removeItem = (id: string) => {
+    const kept = rows.find((r) => r.id === id);
     setRows((prev) => prev.filter((r) => r.id !== id));
-    startTransition(quiet(() => removeTimetableItem(id)));
+    save(
+      () => removeTimetableItem(id),
+      () => setRows((prev) => (kept ? [...prev, kept] : prev))
+    );
   };
 
   const toggleWeekday = (w: number) =>
@@ -144,6 +178,26 @@ export default function TimetableView({
 
   return (
     <div className="flex flex-col gap-stack">
+      {/* 저장이 막혔을 때 사유 ------------------------------------------- */}
+      {problem ? (
+        <p
+          role="alert"
+          data-tone="orange"
+          className="flex items-start gap-2 rounded-inner border-2 border-tone bg-tone-soft px-4 py-3 text-sm"
+        >
+          <span aria-hidden="true">🙀</span>
+          <span className="flex-1">{problem}</span>
+          <button
+            type="button"
+            onClick={() => setProblem(null)}
+            aria-label="알림 닫기"
+            className="grid h-6 w-6 shrink-0 place-items-center text-muted"
+          >
+            ×
+          </button>
+        </p>
+      ) : null}
+
       {/* 시간표 고르기 --------------------------------------------------- */}
       <section
         data-tone="purple"
@@ -242,7 +296,7 @@ export default function TimetableView({
                     type="button"
                     onClick={() => {
                       if (confirm(`"${t.name}" 시간표를 지울까요? 안의 항목도 함께 사라져요.`))
-                        startTransition(quiet(() => removeTimetable(t.id)));
+                        save(() => removeTimetable(t.id));
                     }}
                     aria-label={`${t.name} 삭제`}
                     className="grid h-11 w-8 place-items-center text-base leading-none text-muted transition hover:text-accent-strong"
