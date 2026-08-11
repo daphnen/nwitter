@@ -43,16 +43,29 @@ export async function sendMagicLink(
   });
 
   if (error) {
+    const reason = error.message.toLowerCase();
+
     // 화이트리스트 밖 이메일이면 Supabase 가 "Signups not allowed" 를 돌려줍니다.
-    const notAllowed =
-      error.message.toLowerCase().includes("signups not allowed") ||
-      error.status === 422;
+    if (reason.includes("signups not allowed") || error.status === 422) {
+      return {
+        ok: false,
+        message: "등록되지 않은 이메일이에요. 둘 중 하나의 주소로 로그인해 주세요 🐾",
+      };
+    }
+
+    // Supabase 내장 메일 발송기는 시간당 몇 통으로 묶여 있습니다.
+    // 원문("email rate limit exceeded")만 보면 원인을 알기 어려워 풀어씁니다.
+    if (reason.includes("rate limit") || error.status === 429) {
+      return {
+        ok: false,
+        message:
+          "메일을 너무 자주 보냈어요. 잠시 뒤 다시 시도해 주세요. (계속 이러면 Supabase 에 SMTP 를 연결해야 해요)",
+      };
+    }
 
     return {
       ok: false,
-      message: notAllowed
-        ? "등록되지 않은 이메일이에요. 둘 중 하나의 주소로 로그인해 주세요 🐾"
-        : `로그인 메일을 보내지 못했어요: ${error.message}`,
+      message: `로그인 메일을 보내지 못했어요: ${error.message}`,
     };
   }
 
