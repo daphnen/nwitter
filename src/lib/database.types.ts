@@ -170,7 +170,32 @@ export type UserPreferences = {
   collapsed_cards: CardKey[];
   hidden_cards: CardKey[];
   dark_mode: boolean;
+  /** 채팅을 어디까지 봤는지. 안 읽은 점(●) 하나 띄우는 데만 씁니다. */
+  chat_read_at: string;
   updated_at: string;
+};
+
+export type Message = {
+  id: string;
+  /** 정렬·커서 전용 번호. created_at 이 같아도 순서가 흔들리지 않습니다. */
+  seq: number;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  edited_at: string | null;
+  /** 채워져 있으면 "삭제된 메시지". content 는 함께 비워집니다. */
+  deleted_at: string | null;
+};
+
+export type PushSubscriptionRow = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent: string;
+  created_at: string;
+  last_success_at: string | null;
 };
 
 // -------------------------------------------------------- Database 제네릭
@@ -214,6 +239,11 @@ export type Database = {
       events: Table<CalendarEvent, "created_by" | "title" | "start_date">;
       news_keywords: Table<NewsKeyword, "user_id" | "keyword">;
       user_preferences: Table<UserPreferences, "user_id">;
+      messages: Table<Message, "sender_id" | "content">;
+      push_subscriptions: Table<
+        PushSubscriptionRow,
+        "user_id" | "endpoint" | "p256dh" | "auth"
+      >;
       timetables: Table<Timetable, "user_id" | "name">;
       timetable_items: Table<
         TimetableItem,

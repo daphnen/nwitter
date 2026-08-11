@@ -36,6 +36,8 @@ export type ViewContext = {
   /** 화면에 적용할 스킨. "지금 보고 있는 대상 유저"의 테마입니다. */
   theme: ThemeName;
   mode: "light" | "dark";
+  /** 하단 탭 채팅 아이콘에 점(●)을 띄울지. 개수는 세지 않습니다. */
+  unreadChat: boolean;
 };
 
 /**
@@ -46,7 +48,11 @@ export type ViewContext = {
  * 6단계에서 친구 기록을 볼 때 "조회 대상"의 테마로 바뀝니다.
  */
 export async function getViewContext(): Promise<ViewContext> {
-  const fallback: ViewContext = { theme: "moonlight", mode: "light" };
+  const fallback: ViewContext = {
+    theme: "moonlight",
+    mode: "light",
+    unreadChat: false,
+  };
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return fallback;
 
@@ -56,18 +62,34 @@ export async function getViewContext(): Promise<ViewContext> {
   } = await supabase.auth.getUser();
   if (!user) return fallback;
 
-  const [{ data: profile }, { data: prefs }] = await Promise.all([
+  /*
+   * 안 읽은 점은 "가장 최근 메시지 한 줄"만 보면 판정됩니다.
+   * 그게 상대 것이고 내 chat_read_at 보다 나중이면 안 읽은 것이고,
+   * 마지막이 내 것이면 안 읽은 게 있을 수 없습니다.
+   * 세 질의를 나란히 보내므로 왕복 횟수는 늘지 않습니다.
+   */
+  const [{ data: profile }, { data: prefs }, { data: latest }] = await Promise.all([
     supabase.from("profiles").select("theme").eq("id", user.id).maybeSingle(),
     supabase
       .from("user_preferences")
-      .select("dark_mode")
+      .select("dark_mode, chat_read_at")
       .eq("user_id", user.id)
       .maybeSingle(),
+    supabase
+      .from("messages")
+      .select("sender_id, created_at")
+      .order("seq", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
+
+  const readAt = prefs?.chat_read_at ?? "";
 
   return {
     theme: profile?.theme ?? fallback.theme,
     mode: prefs?.dark_mode ? "dark" : "light",
+    unreadChat:
+      !!latest && latest.sender_id !== user.id && latest.created_at > readAt,
   };
 }
 

@@ -7,13 +7,14 @@ const TABS = [
   { href: "/", label: "홈", emoji: "🏠" },
   { href: "/calendar", label: "캘린더", emoji: "🗓" },
   { href: "/timetable", label: "시간표", emoji: "📚" },
+  { href: "/chat", label: "채팅", emoji: "💬" },
   { href: "/settings", label: "설정", emoji: "⚙️" },
 ] as const;
 
 /** 로그인·콜백 화면에는 탭을 띄우지 않습니다. */
 const HIDDEN_ON = ["/login", "/auth"];
 
-export default function BottomTabs() {
+export default function BottomTabs({ unreadChat = false }: { unreadChat?: boolean }) {
   const pathname = usePathname();
 
   if (HIDDEN_ON.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
@@ -27,6 +28,8 @@ export default function BottomTabs() {
     >
       <ul className="m-3 flex w-full max-w-md items-stretch gap-1 rounded-full border-2 border-line bg-card p-1.5 shadow-card">
         {TABS.map((tab) => {
+          // 안 읽은 점은 채팅 탭에만, 그 탭을 보고 있지 않을 때만.
+          const dot = tab.href === "/chat" && unreadChat && !pathname.startsWith("/chat");
           const active =
             tab.href === "/"
               ? pathname === "/"
@@ -43,10 +46,14 @@ export default function BottomTabs() {
                     : "text-muted hover:text-ink"
                 }`}
               >
-                <span aria-hidden="true" className="text-body leading-none">
+                <span aria-hidden="true" className="relative text-body leading-none">
                   {tab.emoji}
+                  {dot ? (
+                    <span className="absolute -right-1.5 -top-0.5 size-2 rounded-full bg-accent-strong" />
+                  ) : null}
                 </span>
                 {tab.label}
+                {dot ? <span className="sr-only">안 읽은 메시지 있음</span> : null}
               </Link>
             </li>
           );

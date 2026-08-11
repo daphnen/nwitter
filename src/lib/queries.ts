@@ -9,6 +9,7 @@ import type {
   DailyLog,
   Goal,
   GoalLog,
+  Message,
   NewsKeyword,
   ScheduleItem,
   Tag,
@@ -244,4 +245,16 @@ export async function getTimetableItems(
     .in("timetable_id", timetableIds)
     .order("start_time", { ascending: true });
   return data ?? [];
+}
+
+/** 채팅 최신 N개. 화면에 그릴 순서(오래된 것 → 최신)로 돌려줍니다. */
+export async function getMessages(limit = 50): Promise<Message[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("messages")
+    .select("*")
+    .order("seq", { ascending: false })
+    .limit(limit);
+
+  return (data ?? []).slice().reverse();
 }

@@ -71,6 +71,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  /*
+   * 키보드가 올라오면 화면(레이아웃 뷰포트)을 줄여달라는 요청입니다.
+   * 안드로이드 크롬이 이걸 지킵니다. iOS 사파리는 아직 무시하므로
+   * ChatView 가 visualViewport 로 직접 재서 보완합니다.
+   */
+  interactiveWidget: "resizes-content",
 };
 
 export default async function RootLayout({
@@ -81,7 +87,7 @@ export default async function RootLayout({
    * 서버에서 정해 내려보내야 첫 프레임에 기본 테마가 번쩍이지 않습니다.
    * 6단계(친구 기록 토글)에서 조회 대상 기준으로 바뀝니다.
    */
-  const { theme, mode } = await getViewContext();
+  const { theme, mode, unreadChat } = await getViewContext();
 
   return (
     // 폰트 변수는 반드시 <html> 에 둡니다. <body> 에 두면 :root 에서 정의한
@@ -95,7 +101,7 @@ export default async function RootLayout({
       <body>
         <ThemeBackdrop theme={theme} mode={mode} />
         {children}
-        <BottomTabs />
+        <BottomTabs unreadChat={unreadChat} />
         <ServiceWorker />
       </body>
     </html>
