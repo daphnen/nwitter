@@ -15,24 +15,39 @@ const BODY_LIMIT = 80;
 const VIEWING_WINDOW_MS = 75_000;
 
 function configure(): boolean {
-  const privateKey = process.env.VAPID_PRIVATE_KEY ?? "";
-  const subject = process.env.VAPID_SUBJECT ?? "";
+  /*
+   * trim 합니다. 붙여넣을 때 줄바꿈이나 공백이 딸려오면 값이 있어도
+   * web-push 가 거부합니다.
+   */
+  const publicKey = VAPID_PUBLIC_KEY.trim();
+  const privateKey = (process.env.VAPID_PRIVATE_KEY ?? "").trim();
+  const subject = (process.env.VAPID_SUBJECT ?? "").trim();
 
   const missing = [
-    !VAPID_PUBLIC_KEY && "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+    !publicKey && "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
     !privateKey && "VAPID_PRIVATE_KEY",
     !subject && "VAPID_SUBJECT",
   ].filter(Boolean);
 
   if (missing.length) {
-    console.error("[푸시] 환경변수가 없습니다:", missing.join(", "));
+    /*
+     * 길이만 찍습니다. 값 자체는 절대 로그에 남기지 않습니다.
+     * "아예 안 실림"과 "실렸는데 빈 값"을 구분하려는 것입니다.
+     * 정상값 길이: 공개키 87, 비밀키 43, subject 는 mailto: 로 시작.
+     */
+    console.error(
+      "[푸시] 환경변수가 없습니다:",
+      missing.join(", "),
+      `| 길이 확인 → 공개키 ${publicKey.length}자, 비밀키 ${privateKey.length}자,` +
+        ` subject ${subject.length}자, service_role ${(process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length}자`
+    );
     return false;
   }
 
   try {
     // setVapidDetails 는 형식이 틀리면 예외를 던집니다.
     // 특히 subject 는 mailto: 나 https:// 로 시작해야 합니다.
-    webpush.setVapidDetails(subject, VAPID_PUBLIC_KEY, privateKey);
+    webpush.setVapidDetails(subject, publicKey, privateKey);
     return true;
   } catch (error) {
     console.error("[푸시] VAPID 설정이 잘못됐습니다:", (error as Error).message);
