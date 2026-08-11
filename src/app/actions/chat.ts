@@ -1,8 +1,11 @@
 "use server";
 
+import { after } from "next/server";
 import { NOT_SIGNED_IN, currentUser, saveError, type SaveResult } from "./common";
+import { notifyChat } from "@/lib/push/send";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { PAGE_SIZE } from "@/lib/chat";
-import type { Message } from "@/lib/database.types";
+import type { Database, Message } from "@/lib/database.types";
 
 /** 한 통에 담을 수 있는 글자 수. 실수로 붙여넣은 장문을 막는 정도의 상한입니다. */
 const MAX_LENGTH = 2000;
@@ -39,6 +42,30 @@ export async function sendMessage(content: string): Promise<SendResult> {
     .from("user_preferences")
     .update({ chat_read_at: new Date().toISOString() })
     .eq("user_id", auth.userId);
+
+  /*
+   * 상대에게 알림 보내기.
+   *
+   * after() 는 응답을 보낸 뒤에 돌므로, 푸시 서버 왕복(수백 ms)이 메시지
+   * 전송 속도에 얹히지 않습니다. 그냥 await 하면 말풍선이 그만큼 늦게
+   * 확정되고, 안 기다리면 서버리스에서 함수가 먼저 종료돼 발송이 끊깁니다.
+   */
+  after(async () => {
+    const partnerId = await findPartnerId(auth.supabase, auth.userId);
+    if (!partnerId) return;
+
+    const { data: me } = await auth.supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", auth.userId)
+      .maybeSingle();
+
+    await notifyChat({
+      toUserId: partnerId,
+      fromName: me?.display_name || "메시지",
+      body: text,
+    });
+  });
 
   /*
    * 일부러 revalidatePath 를 부르지 않습니다.
@@ -117,4 +144,18 @@ export async function loadOlderMessages(beforeSeq: number): Promise<OlderResult>
 
   const rows = data ?? [];
   return { items: rows.slice().reverse(), hasMore: rows.length === PAGE_SIZE };
+}
+
+/** 이 앱을 쓰는 두 사람 중 내가 아닌 쪽의 id */
+async function findPartnerId(
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("id")
+    .neq("id", userId)
+    .limit(1)
+    .maybeSingle();
+  return data?.id ?? null;
 }

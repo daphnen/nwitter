@@ -57,9 +57,27 @@ export default function ChatView({
    * 여기서 동기화하면 위로 불러온 이전 메시지가 통째로 날아갑니다.
    */
 
-  /** 열자마자 "여기까지 봤다"를 갱신해서 하단 탭의 점을 끕니다. */
+  /*
+   * "여기까지 봤다"를 갱신합니다.
+   *
+   * 열 때 한 번이면 하단 탭의 점을 끄는 데는 충분합니다. 그런데 서버는 이
+   * 시각으로 "지금 채팅을 보고 있는지"를 판단해 푸시를 건너뛰므로, 화면을
+   * 켜둔 채 가만히 있으면 값이 낡아서 보고 있는데도 알림이 옵니다.
+   * 그래서 화면이 보이는 동안에는 주기적으로도 찍어둡니다.
+   */
   useEffect(() => {
-    markChatRead().catch((error) => console.error("읽음 표시 실패:", error));
+    const touch = () => {
+      if (document.hidden) return;
+      markChatRead().catch((error) => console.error("읽음 표시 실패:", error));
+    };
+
+    touch();
+    const timer = setInterval(touch, 40_000);
+    document.addEventListener("visibilitychange", touch);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", touch);
+    };
   }, []);
 
 

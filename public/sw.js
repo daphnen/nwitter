@@ -9,7 +9,7 @@
  * 내용이 다릅니다. 캐시했다가는 상대방 기록이 남아 보일 수 있습니다.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `nwitter-static-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
 
@@ -113,5 +113,65 @@ self.addEventListener("fetch", (event) => {
         return response;
       });
     })
+  );
+});
+
+
+/* ==========================================================================
+   웹 푸시
+   ========================================================================== */
+
+/**
+ * 알림 도착.
+ *
+ * iOS 는 push 를 받으면 반드시 알림을 하나 띄워야 합니다. 조용히 넘기면
+ * 사파리가 "백그라운드에서 업데이트됨" 같은 걸 대신 띄우거나 구독을
+ * 끊어버립니다. 그래서 "지금 보고 있으면 안 보내기"는 서버에서 거릅니다.
+ */
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+
+  const title = data.title || "새 메시지";
+  const options = {
+    body: data.body || "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    // 같은 대화의 알림은 하나로 덮어씁니다. 여러 개가 쌓이지 않게.
+    tag: data.tag || "chat",
+    renotify: true,
+    data: { url: data.url || "/chat" },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+/**
+ * 알림을 눌렀을 때.
+ *
+ * 이미 열려 있는 창이 있으면 그 창을 채팅으로 옮기고 앞으로 가져옵니다.
+ * 새 창을 여는 것보다 자연스럽고, 홈 화면에 추가한 앱에서도 창이 하나만
+ * 유지됩니다.
+ */
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/chat";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clients) => {
+        for (const client of clients) {
+          if ("focus" in client) {
+            if ("navigate" in client) client.navigate(target).catch(() => {});
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(target);
+      })
   );
 });

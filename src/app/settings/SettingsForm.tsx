@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { CatMascot, Paw } from "@/components/Cat";
+import PushToggle from "@/components/PushToggle";
 import {
   updateDarkMode,
   updateDisplayName,
@@ -154,6 +155,17 @@ export default function SettingsForm({
             );
           })}
         </div>
+      </section>
+
+      {/* 알림 ------------------------------------------------------------ */}
+      <section className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card" data-tone="mint">
+        <h2 className="mb-1 flex items-center gap-2 text-heading">
+          <span aria-hidden="true">🔔</span> 알림
+        </h2>
+        <p className="mb-3.5 text-label text-muted">
+          이 기기에만 적용돼요. 폰과 노트북을 따로 켜고 끌 수 있어요.
+        </p>
+        <PushToggle />
       </section>
 
       {/* 밤 모드 --------------------------------------------------------- */}
