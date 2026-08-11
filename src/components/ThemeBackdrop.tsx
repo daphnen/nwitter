@@ -27,7 +27,8 @@ export default function ThemeBackdrop({
     const root = document.documentElement;
 
     const sync = () => {
-      setTheme(root.dataset.theme === "aqua" ? "aqua" : "moonlight");
+      const next = root.dataset.theme;
+      setTheme(next === "aqua" || next === "koi" ? next : "moonlight");
       setMode(root.dataset.mode === "dark" ? "dark" : "light");
 
       // 홈 화면에 추가해서 켰을 때 상태바 색까지 같이 따라오게 합니다.
@@ -49,7 +50,7 @@ export default function ThemeBackdrop({
 
   return (
     <div aria-hidden="true" className="fixed inset-0 -z-10">
-      {(["moonlight", "aqua"] as const).map((t) => (
+      {(["moonlight", "aqua", "koi"] as const).map((t) => (
         <div
           key={t}
           data-theme={t}

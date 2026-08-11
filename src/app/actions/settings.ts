@@ -1,16 +1,43 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "./common";
+import {
+  NOT_SIGNED_IN,
+  currentUser,
+  requireUser,
+  saveError,
+  type SaveResult,
+} from "./common";
 import type { CardKey, ThemeName } from "@/lib/database.types";
 
-/** 내 테마(스킨)를 바꿉니다. 상대방 화면에는 영향이 없습니다. */
-export async function updateTheme(theme: ThemeName) {
-  const { supabase, userId } = await requireUser();
-  await supabase.from("profiles").update({ theme }).eq("id", userId);
+/**
+ * 내 테마(스킨)를 바꿉니다. 상대방 화면에는 영향이 없습니다.
+ *
+ * 실패 사유를 돌려줍니다. theme 컬럼에는 허용값 check 제약이 걸려 있어서,
+ * 새 테마를 추가하고 마이그레이션을 안 돌리면 여기서 조용히 막힙니다.
+ */
+export async function updateTheme(theme: ThemeName): Promise<SaveResult> {
+  const auth = await currentUser();
+  if (!auth) return NOT_SIGNED_IN;
+
+  const { error } = await auth.supabase
+    .from("profiles")
+    .update({ theme })
+    .eq("id", auth.userId);
+
+  if (error) {
+    // 23514 = check 제약 위반
+    if (error.code === "23514") {
+      return {
+        message: `"${theme}" 테마를 아직 데이터베이스가 몰라요. supabase/migrations/0004_theme_koi.sql 을 SQL Editor 에서 실행해 주세요.`,
+      };
+    }
+    return saveError(error);
+  }
 
   // <html data-theme> 은 루트 레이아웃이 만들기 때문에 layout 까지 다시 그립니다.
   revalidatePath("/", "layout");
+  return {};
 }
 
 export async function updateDarkMode(darkMode: boolean) {

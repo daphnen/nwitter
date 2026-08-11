@@ -3,7 +3,7 @@
  * 스키마를 바꾸면 이 파일도 같이 고쳐주세요.
  */
 
-export type ThemeName = "moonlight" | "aqua";
+export type ThemeName = "moonlight" | "aqua" | "koi";
 export type GoalPeriod = "daily" | "weekly";
 export type ColorKey =
   | "blue"

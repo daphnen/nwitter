@@ -7,8 +7,9 @@
    rounded-[26px] 같은 하드코딩 값을 쓰지 않고 bg-card / p-card / rounded-card
    같은 시맨틱 유틸만 씁니다. 그래서 테마를 바꿔도 컴포넌트는 그대로입니다.
 
-   구조:  <html data-theme="moonlight|aqua" data-mode="light|dark">
-   팔레트는 테마 2종 × 라이트/다크 2종 = 4벌.
+   구조:  <html data-theme="moonlight|aqua|koi" data-mode="light|dark">
+   팔레트는 테마 3종 × 라이트/다크 2종 = 6벌.
+   글꼴·글자 크기는 테마를 타지 않습니다. 테마는 색과 형태만 바꿉니다.
 
    카드별 색 계열(일정=파랑, 식사=주황, 일과=보라, 목표=초록, 뉴스=노랑)은
    카드 루트의 data-tone 으로 --tone / --tone-soft 를 갈아끼워 표현합니다.
@@ -26,6 +27,10 @@
   /* data-tone 이 없는 곳의 기본값 */
   --tone: var(--accent);
   --tone-soft: var(--accent-soft);
+
+  /* 카드 위로 삐죽 나온 고양이 귀 두 짝. 기본은 카드 계열색입니다. */
+  --ear-a: var(--tone);
+  --ear-b: var(--tone);
 }
 
 /* ---------------------------------------------------------------- moonlight
@@ -79,6 +84,7 @@
   /* 진행 막대: 핑크 → 골드 */
   --progress-from: #f191b3;
   --progress-to: #e8b551;
+  --progress-gradient: linear-gradient(90deg, var(--progress-from), var(--progress-to));
 
   --heading-shadow: 0 1px 0 rgba(255, 255, 255, 0.65),
     0 3px 10px rgba(224, 130, 175, 0.16);
@@ -133,6 +139,7 @@
 
   --progress-from: #ef9dbd;
   --progress-to: #e6c374;
+  --progress-gradient: linear-gradient(90deg, var(--progress-from), var(--progress-to));
 
   --heading-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
   --sparkle-color: #f3d27e;
@@ -197,6 +204,7 @@
   /* 진행 막대: 스틸블루 → 민트 */
   --progress-from: #6fa3c4;
   --progress-to: #74c4b4;
+  --progress-gradient: linear-gradient(90deg, var(--progress-from), var(--progress-to));
 
   --heading-shadow: none;
   --sparkle-color: transparent;
@@ -246,6 +254,7 @@
 
   --progress-from: #79aecd;
   --progress-to: #6fc0b0;
+  --progress-gradient: linear-gradient(90deg, var(--progress-from), var(--progress-to));
 
   --tone-blue: #7ea9cc;
   --tone-blue-soft: #26384a;
@@ -267,6 +276,175 @@
   --cat-fur: #fbfdff;
   --cat-line: #2b3d4b;
   --cat-blush: #7ea9cc;
+}
+
+/* ---------------------------------------------------------------------- koi
+   물빛 유리 잉어. 맑은 물속을 위에서 내려다본 느낌.
+   청록 → 라벤더 → 옅은 산호가 물감처럼 번지고, 그 위에 유리 같은 반투명
+   카드가 떠 있습니다. moonlight 가 따뜻한 핑크, aqua 가 차분한 블루라면
+   koi 는 그 사이의 무지갯빛 물빛입니다.
+   ------------------------------------------------------------------------ */
+
+[data-theme="koi"] {
+  --bg-base: #eaf5f7;
+
+  /* 경계 없이 물에 풀리게. 큰 원 여러 겹을 겹쳐 색이 서로 스미게 합니다. */
+  --bg-gradient: radial-gradient(1150px 720px at 8% -12%, #a6dfe8, transparent 62%),
+    radial-gradient(980px 660px at 94% 0%, #d6cbf3, transparent 60%),
+    radial-gradient(900px 740px at 62% 108%, #ffd3bd, transparent 64%),
+    radial-gradient(760px 560px at 34% 52%, #c6e8ef, transparent 72%),
+    linear-gradient(168deg, #e9f7f8 0%, #f1eefb 52%, #fdf1ea 100%);
+
+  /* 물속 빛 입자. 움직이지 않는 정적 텍스처입니다. */
+  --bg-texture: radial-gradient(2px 2px at 14% 22%, #fff 42%, transparent 47%),
+    radial-gradient(1.4px 1.4px at 62% 10%, #fff 42%, transparent 47%),
+    radial-gradient(2.4px 2.4px at 86% 38%, #fff 42%, transparent 47%),
+    radial-gradient(1.6px 1.6px at 28% 66%, #fff 42%, transparent 47%),
+    radial-gradient(1.2px 1.2px at 48% 84%, #fff 42%, transparent 47%),
+    radial-gradient(2px 2px at 92% 72%, #fff 42%, transparent 47%),
+    radial-gradient(1.5px 1.5px at 8% 88%, #fff 42%, transparent 47%),
+    radial-gradient(1.3px 1.3px at 72% 54%, #fff 42%, transparent 47%);
+  --bg-texture-size: 360px 330px;
+  --bg-texture-opacity: 0.5;
+
+  /*
+   * 유리 카드. 흰색 반투명 + backdrop-filter 로 뒤 그라데이션이 비칩니다.
+   * blur 는 카드에만 겁니다 (아래 [data-theme="koi"] .rounded-card).
+   */
+  --card-bg: rgba(255, 255, 255, 0.62);
+  --card-bg-subtle: rgba(255, 255, 255, 0.44);
+  --card-border: rgba(255, 255, 255, 0.82);
+  --card-blur: 10px;
+  --card-shadow: 0 18px 42px -26px rgba(20, 96, 112, 0.5),
+    0 2px 8px -4px rgba(20, 96, 112, 0.16);
+  --card-shadow-soft: 0 8px 20px -14px rgba(20, 96, 112, 0.4);
+
+  --card-radius: 24px;
+  --inner-radius: 15px;
+  --card-pad: 22px;
+  --stack-gap: 22px;
+  --row-pad: 8px;
+
+  /* 유리 위에서도 읽히도록 짙은 남색으로 */
+  --text-primary: #12303d;
+  --text-muted: #3c6070;
+
+  --accent: #4fb3c4;
+  --accent-soft: #d8f0f4;
+  --accent-strong: #0d6b7c;
+  /*
+   * --on-accent 는 bg-accent 뿐 아니라 bg-tone(파스텔 계열색) 위에도 얹힙니다.
+   * 흰색으로 두면 진한 청록 버튼에서는 통과해도 파스텔 위에서 2:1 로 떨어집니다.
+   * moonlight·aqua 와 같이 어두운 색으로 둡니다.
+   */
+  --on-accent: #062c34;
+
+  /* 잉어의 주홍 무늬. 적게, 강조에만. */
+  --accent-alt: #f0794e;
+  --accent-alt-soft: #ffe0d2;
+
+  --progress-from: #14889b;
+  --progress-to: #f0794e;
+  /* 청록 → 라벤더 → 산호. 무지갯빛 물빛. */
+  --progress-gradient: linear-gradient(
+    90deg,
+    #14889b 0%,
+    #9d8fe0 52%,
+    #f0794e 100%
+  );
+
+  --heading-shadow: 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 4px 14px rgba(30, 120, 140, 0.14);
+  --sparkle-color: transparent;
+
+  /* 고양이 귀 — 반투명한 청록 / 라벤더 */
+  --ear-a: rgba(72, 178, 192, 0.6);
+  --ear-b: rgba(150, 136, 214, 0.55);
+
+  --tone-blue: #74c2d6;
+  --tone-blue-soft: #dcf0f6;
+  --tone-orange: #f0a081;
+  --tone-orange-soft: #ffe6da;
+  --tone-purple: #ab9de3;
+  --tone-purple-soft: #eae5fa;
+  --tone-green: #6fc7ae;
+  --tone-green-soft: #dcf3ec;
+  --tone-yellow: #e8c079;
+  --tone-yellow-soft: #fbefd8;
+  --tone-pink: #eb9fb9;
+  --tone-pink-soft: #fce3ec;
+  --tone-mint: #5ec7c0;
+  --tone-mint-soft: #d7f2f0;
+  --tone-gray: #9db4bd;
+  --tone-gray-soft: #e8eff2;
+
+  --cat-fur: #ffffff;
+  --cat-line: #1e4b59;
+  --cat-blush: #f0a184;
+}
+
+[data-theme="koi"][data-mode="dark"] {
+  --bg-base: #0d2027;
+  --bg-gradient: radial-gradient(1150px 720px at 8% -12%, #14484f, transparent 62%),
+    radial-gradient(980px 660px at 94% 0%, #2c2a52, transparent 60%),
+    radial-gradient(900px 740px at 62% 108%, #4a2c28, transparent 64%),
+    radial-gradient(760px 560px at 34% 52%, #163a44, transparent 72%),
+    linear-gradient(168deg, #122a32 0%, #14212e 52%, #1a1f26 100%);
+  --bg-texture-opacity: 0.32;
+
+  /* 어두운 물속. 흰빛을 아주 옅게 얹어 유리 느낌만 남깁니다. */
+  --card-bg: rgba(226, 246, 250, 0.09);
+  --card-bg-subtle: rgba(226, 246, 250, 0.055);
+  --card-border: rgba(226, 246, 250, 0.16);
+  --card-blur: 12px;
+  --card-shadow: 0 18px 42px -26px rgba(0, 0, 0, 0.8);
+  --card-shadow-soft: 0 8px 20px -14px rgba(0, 0, 0, 0.7);
+
+  --text-primary: #e6f4f8;
+  --text-muted: #b3cfd9;
+
+  --accent: #4fb6c8;
+  --accent-soft: #133c46;
+  --accent-strong: #8fdae8;
+  --on-accent: #05222a;
+
+  --accent-alt: #f0805a;
+  --accent-alt-soft: #45241c;
+
+  --progress-from: #4fb6c8;
+  --progress-to: #f0805a;
+  --progress-gradient: linear-gradient(
+    90deg,
+    #4fb6c8 0%,
+    #a698e8 52%,
+    #f0805a 100%
+  );
+
+  --heading-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+
+  --ear-a: rgba(79, 182, 200, 0.5);
+  --ear-b: rgba(150, 136, 214, 0.45);
+
+  --tone-blue: #6ab2c9;
+  --tone-blue-soft: #1c3c47;
+  --tone-orange: #d99070;
+  --tone-orange-soft: #43302a;
+  --tone-purple: #9a8ed6;
+  --tone-purple-soft: #2e2c4c;
+  --tone-green: #63b8a0;
+  --tone-green-soft: #1d3d3a;
+  --tone-yellow: #d6b174;
+  --tone-yellow-soft: #423722;
+  --tone-pink: #d892ab;
+  --tone-pink-soft: #422a34;
+  --tone-mint: #56b8b2;
+  --tone-mint-soft: #17393a;
+  --tone-gray: #8ba4ad;
+  --tone-gray-soft: #2a373d;
+
+  --cat-fur: #f2fbfd;
+  --cat-line: #16333d;
+  --cat-blush: #d9836a;
 }
 
 /* 카드 계열 색 지정 — data-tone 하나로 --tone / --tone-soft 를 바꿉니다. */
@@ -520,7 +698,7 @@
     top: -17px;
     width: 30px;
     height: 28px;
-    background: var(--tone);
+    background: var(--ear-a);
     clip-path: polygon(50% 0%, 96% 92%, 4% 92%);
     z-index: -1;
     transition: background-color 0.3s ease;
@@ -531,6 +709,7 @@
   }
   .cat-card::after {
     left: 56px;
+    background: var(--ear-b);
     transform: rotate(22deg);
   }
 
@@ -557,7 +736,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, var(--progress-from), var(--progress-to));
+    background: var(--progress-gradient);
     transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
@@ -572,8 +751,86 @@
 }
 
 /* ============================================================================
+   koi 의 유리 카드
+   ---------------------------------------------------------------------------
+   backdrop-filter 는 비용이 큽니다. rounded-card 는 카드 껍데기 15곳에만
+   붙어 있고 알약·동그란 버튼 같은 작은 요소에는 안 붙습니다. 그래서 이걸
+   기준으로 걸면 카드에만 정확히 적용됩니다.
+   ========================================================================= */
+
+[data-theme="koi"] .rounded-card {
+  /*
+   * -webkit- 접두사는 직접 쓰지 않습니다. Lightning CSS 가 브라우저 목표에
+   * 맞춰 알아서 붙입니다. 손으로 뒤에 덧붙이면 접두사 없는 쪽을 덮어써서
+   * 크로미움에서 blur 가 통째로 사라집니다.
+   */
+  backdrop-filter: blur(var(--card-blur)) saturate(1.15);
+}
+
+/*
+ * backdrop-filter 를 걸면 그 요소가 쌓임 맥락(stacking context)을 만듭니다.
+ * 고양이 귀는 z-index:-1 로 "카드 뒤"에 그려져 위쪽만 삐죽 보이는 구조라,
+ * 그대로 두면 카드 배경에 가려 통째로 사라집니다.
+ *
+ * 그래서 koi 에서는 귀를 카드 위로 올립니다. 어차피 반투명 유리라서,
+ * 카드에 살짝 겹치는 부분이 유리끼리 포개진 것처럼 보입니다.
+ */
+[data-theme="koi"] .cat-card::before,
+[data-theme="koi"] .cat-card::after {
+  z-index: 1;
+  top: -18px;
+  height: 20px;
+  width: 34px;
+  /*
+   * 다른 테마는 카드에 반쯤 파묻힌 삼각형을 기울여 놓습니다. 여기서는
+   * 삼각형이 통째로 드러나므로, 기울이면 나비넥타이처럼 보입니다.
+   * 회전을 빼고 밑변을 카드 윗선에 딱 붙인 뒤, 꼭짓점만 바깥으로
+   * 치우치게 해서 귀 모양을 냅니다.
+   */
+  transform: none;
+}
+[data-theme="koi"] .cat-card::before {
+  left: 26px;
+  clip-path: polygon(28% 0%, 100% 100%, 0% 100%);
+}
+[data-theme="koi"] .cat-card::after {
+  left: 60px;
+  clip-path: polygon(72% 0%, 100% 100%, 0% 100%);
+}
+
+/* 유리를 못 그리는 브라우저에서는 불투명도를 올려 글자 대비를 지킵니다. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-theme="koi"] {
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --card-bg-subtle: rgba(255, 255, 255, 0.78);
+  }
+  [data-theme="koi"][data-mode="dark"] {
+    --card-bg: rgba(226, 246, 250, 0.14);
+    --card-bg-subtle: rgba(226, 246, 250, 0.09);
+  }
+}
+
+/*
+ * 투명 효과를 줄여달라는 설정(주로 접근성)에서도 불투명하게 바꿉니다.
+ * blur 도 끄기 때문에 스크롤이 무거운 기기에서 쓰기에도 좋습니다.
+ */
+@media (prefers-reduced-transparency: reduce) {
+  [data-theme="koi"] .rounded-card {
+    backdrop-filter: none;
+  }
+  [data-theme="koi"] {
+    --card-bg: rgba(255, 255, 255, 0.94);
+    --card-bg-subtle: rgba(255, 255, 255, 0.84);
+  }
+  [data-theme="koi"][data-mode="dark"] {
+    --card-bg: rgba(226, 246, 250, 0.15);
+    --card-bg-subtle: rgba(226, 246, 250, 0.1);
+  }
+}
+
+/* ============================================================================
    목표 달성 축하 — 컴포넌트는 둘 다 렌더링하고, 테마가 하나만 보여줍니다.
-   moonlight: 반짝임 / aqua: 부드러운 체크
+   moonlight: 반짝임 / aqua: 부드러운 체크 / koi: 체크 + 잔물결
    ========================================================================= */
 
 @keyframes sparkle-pop {
@@ -613,14 +870,46 @@
 }
 
 .celebrate-check {
+  position: relative; /* koi 의 잔물결 고리가 여기에 붙습니다 */
   animation: check-pop 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
-[data-theme="aqua"] .sparkle {
+[data-theme="aqua"] .sparkle,
+[data-theme="koi"] .sparkle {
   display: none;
 }
 [data-theme="moonlight"] .celebrate-check {
   display: none;
+}
+
+/*
+ * koi 의 축하 — 물방울이 퍼지는 잔물결.
+ * aqua 와 같은 체크 표시를 쓰되, 그 둘레로 고리 두 개가 짧게 번집니다.
+ * 컴포넌트는 그대로 두고 여기서 pseudo-element 두 개만 얹습니다.
+ */
+@keyframes ripple-out {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+[data-theme="koi"] .celebrate-check::before,
+[data-theme="koi"] .celebrate-check::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--tone);
+  animation: ripple-out 1.1s ease-out 2;
+  pointer-events: none;
+}
+[data-theme="koi"] .celebrate-check::after {
+  animation-delay: 0.35s;
 }
 
 @keyframes bob {
@@ -647,8 +936,14 @@
 
   .sparkle,
   .cat-bob,
-  .celebrate-check {
+  .celebrate-check,
+  .celebrate-check::before,
+  .celebrate-check::after {
     animation: none;
+  }
+  [data-theme="koi"] .celebrate-check::before,
+  [data-theme="koi"] .celebrate-check::after {
+    display: none;
   }
   .progress-fill {
     transition: none;

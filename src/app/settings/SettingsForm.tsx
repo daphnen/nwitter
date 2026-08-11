@@ -13,6 +13,7 @@ import { quiet } from "@/lib/save";
 const THEMES: { key: ThemeName; label: string; blurb: string }[] = [
   { key: "moonlight", label: "moonlight", blurb: "몽환적인 로즈핑크와 별가루" },
   { key: "aqua", label: "aqua", blurb: "차분한 스카이블루와 민트" },
+  { key: "koi", label: "koi", blurb: "물빛 유리와 잉어의 주홍" },
 ];
 
 /**
@@ -56,14 +57,35 @@ export default function SettingsForm({
   const [theme, setTheme] = useState(initialTheme);
   const [darkMode, setDarkMode] = useState(initialDarkMode);
   const [name, setName] = useState(initialName);
+  const [problem, setProblem] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   /** 서버 응답을 기다리지 않고 먼저 바꿔서 즉시 반영되게 합니다. */
   const applyTheme = (next: ThemeName) => {
     if (next === theme) return;
+    const before = theme;
     setTheme(next);
     document.documentElement.dataset.theme = next;
-    startTransition(quiet(() => updateTheme(next)));
+
+    startTransition(async () => {
+      try {
+        const result = await updateTheme(next);
+        if (result?.message) {
+          // 저장이 막혔으면 화면도 되돌립니다. 안 그러면 새로고침할 때
+          // 혼자 원래 테마로 돌아가서 더 헷갈립니다.
+          setProblem(result.message);
+          setTheme(before);
+          document.documentElement.dataset.theme = before;
+        } else {
+          setProblem(null);
+        }
+      } catch (error) {
+        console.error(error);
+        setProblem("테마를 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.");
+        setTheme(before);
+        document.documentElement.dataset.theme = before;
+      }
+    });
   };
 
   const applyDarkMode = (next: boolean) => {
@@ -88,6 +110,16 @@ export default function SettingsForm({
         <p className="mb-3.5 text-label text-muted">
           내 화면 색감이에요. 상대방 화면은 그대로예요.
         </p>
+
+        {problem ? (
+          <p
+            role="alert"
+            data-tone="orange"
+            className="mb-3 rounded-inner border-2 border-tone bg-tone-soft px-3 py-2 text-label"
+          >
+            🙀 {problem}
+          </p>
+        ) : null}
 
         <div className="flex flex-col gap-3">
           {THEMES.map((t) => {
