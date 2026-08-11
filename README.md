@@ -112,17 +112,7 @@ src/
 - [x] 6단계 — 친구 기록 토글 (테마 전환)
 - [x] 7단계 — 뉴스 RSS
 - [ ] 8단계 — PWA
-
-## 임시: /design-preview
-
-Supabase 없이 카드 배치와 테마를 눈으로 확인하기 위한 목데이터 페이지입니다.
-로그인 뒤에만 열립니다.
-
-- `/design-preview?theme=aqua&mode=dark` — 홈 화면을 팔레트별로
-- `/design-preview/settings?theme=aqua` — 설정 화면
-- `/design-preview/timetable` — 시간표 (`?view=calendar` 로 캘린더)
-
-5단계까지 쓰고 지울 예정입니다.
+- [ ] 실시간 반영 (Realtime 구독) — 아직 안 붙였습니다
 
 ## 시간표
 
@@ -184,3 +174,18 @@ Supabase 없이 카드 배치와 테마를 눈으로 확인하기 위한 목데�
 - 로그인한 두 사람만 부를 수 있습니다. 미들웨어가 `/api/*` 에는 로그인
   화면으로 보내는 대신 401 JSON 을 돌려줍니다.
 - 실패하면 카드에 안내와 함께 구글 뉴스로 바로 가는 링크를 띄웁니다.
+
+## 배포
+
+`master` 에 푸시하면 Vercel 이 자동으로 다시 배포합니다.
+
+| 환경변수 | 설명 |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | 필수 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 필수 |
+| `NEXT_PUBLIC_SITE_URL` | **선택**. 비워두면 요청 헤더에서 추론합니다 |
+
+`NEXT_PUBLIC_SITE_URL` 은 매직링크가 돌아올 주소인데, 배포 주소는 배포를
+해봐야 나옵니다. 그래서 `siteOrigin()`(`src/lib/auth.ts`)이 값이 없으면
+`x-forwarded-host` / `x-forwarded-proto` 에서 추론하도록 해뒀습니다.
+그냥 비워두는 쪽을 권합니다 — 프리뷰 배포에서도 알아서 맞습니다.
