@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import PageShell, { PageHeader } from "@/components/PageShell";
 import TimetableView from "@/components/timetable/TimetableView";
+import LiveSync from "@/components/LiveSync";
 import { getSessionState } from "@/lib/auth";
 import {
   getPartner,
@@ -52,6 +53,10 @@ export default async function TimetablePage({
         title="시간표"
         emoji="📚"
         subtitle="매주 반복되는 고정 일정이에요. 오늘 요일 항목은 홈에도 떠요."
+        // 상대방 시간표를 겹쳐 보고 있으므로 둘의 변경을 다 듣습니다.
+        action={
+          <LiveSync userId={null} tables={["timetables", "timetable_items"]} />
+        }
       />
       <TimetableView
         timetables={timetables}

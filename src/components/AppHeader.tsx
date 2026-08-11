@@ -1,6 +1,19 @@
 import { CatMascot } from "@/components/Cat";
+import LiveSync from "@/components/LiveSync";
 import { greeting } from "@/lib/date";
 import type { Profile } from "@/lib/database.types";
+
+/** 홈 카드들이 보고 있는 표. 이 중 하나라도 바뀌면 화면을 새로 받아옵니다. */
+const HOME_TABLES = [
+  "daily_logs",
+  "schedule_items",
+  "timeline_entries",
+  "goals",
+  "goal_logs",
+  "news_keywords",
+  "timetable_items",
+  "events",
+];
 
 export default function AppHeader({
   me,
@@ -42,9 +55,7 @@ export default function AppHeader({
       </div>
 
       <div className="flex items-center gap-2 max-wide:w-full max-wide:justify-center">
-        <span className="rounded-full border-2 border-tone-green bg-tone-green-soft px-3 py-1 text-xs">
-          ☁️ 동기화됨
-        </span>
+        <LiveSync userId={viewed.id} tables={HOME_TABLES} />
       </div>
     </header>
   );
