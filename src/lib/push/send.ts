@@ -17,10 +17,27 @@ const VIEWING_WINDOW_MS = 75_000;
 function configure(): boolean {
   const privateKey = process.env.VAPID_PRIVATE_KEY ?? "";
   const subject = process.env.VAPID_SUBJECT ?? "";
-  if (!VAPID_PUBLIC_KEY || !privateKey || !subject) return false;
 
-  webpush.setVapidDetails(subject, VAPID_PUBLIC_KEY, privateKey);
-  return true;
+  const missing = [
+    !VAPID_PUBLIC_KEY && "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+    !privateKey && "VAPID_PRIVATE_KEY",
+    !subject && "VAPID_SUBJECT",
+  ].filter(Boolean);
+
+  if (missing.length) {
+    console.error("[푸시] 환경변수가 없습니다:", missing.join(", "));
+    return false;
+  }
+
+  try {
+    // setVapidDetails 는 형식이 틀리면 예외를 던집니다.
+    // 특히 subject 는 mailto: 나 https:// 로 시작해야 합니다.
+    webpush.setVapidDetails(subject, VAPID_PUBLIC_KEY, privateKey);
+    return true;
+  } catch (error) {
+    console.error("[푸시] VAPID 설정이 잘못됐습니다:", (error as Error).message);
+    return false;
+  }
 }
 
 export type ChatNotice = {
@@ -55,7 +72,12 @@ export async function notifyChat(notice: ChatNotice): Promise<void> {
 
   if (prefs?.chat_read_at) {
     const idle = Date.now() - new Date(prefs.chat_read_at).getTime();
-    if (idle < VIEWING_WINDOW_MS) return;
+    if (idle < VIEWING_WINDOW_MS) {
+      console.log(
+        `[푸시] 건너뜀 — 상대가 ${Math.round(idle / 1000)}초 전에 채팅을 봤습니다.`
+      );
+      return;
+    }
   }
 
   const { data: subs } = await admin
@@ -63,7 +85,12 @@ export async function notifyChat(notice: ChatNotice): Promise<void> {
     .select("*")
     .eq("user_id", notice.toUserId);
 
-  if (!subs?.length) return;
+  if (!subs?.length) {
+    console.log(`[푸시] 건너뜀 — ${notice.toUserId} 의 구독이 없습니다. 상대가 설정에서 알림을 켰는지 확인해 주세요.`);
+    return;
+  }
+
+  console.log(`[푸시] ${subs.length}개 기기로 발송 시작`);
 
   const body =
     notice.body.length > BODY_LIMIT
@@ -104,11 +131,13 @@ export async function notifyChat(notice: ChatNotice): Promise<void> {
   );
 
   if (dead.length) {
+    console.log(`[푸시] 사라진 구독 ${dead.length}개 삭제`);
     await admin.from("push_subscriptions").delete().in("endpoint", dead);
   }
 
   // 마지막으로 성공한 시각. 설정 화면에서 기기를 정리할 때 참고합니다.
   const alive = subs.filter((s) => !dead.includes(s.endpoint)).map((s) => s.endpoint);
+  console.log(`[푸시] 발송 성공 ${alive.length} / ${subs.length}`);
   if (alive.length) {
     await admin
       .from("push_subscriptions")

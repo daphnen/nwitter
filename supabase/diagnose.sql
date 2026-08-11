@@ -109,3 +109,33 @@ begin
 exception when others then
   raise notice '여기서 막힙니다 → [%] %', sqlstate, sqlerrm;
 end $$;
+
+
+-- ============================================================================
+--  [7] 푸시 알림이 안 올 때
+-- ============================================================================
+
+-- 누가 어느 기기에서 알림을 켰는지.
+-- 알림을 "받을" 사람의 줄이 있어야 합니다. 보내는 사람 것만 있으면 안 옵니다.
+select
+  p.display_name,
+  p.email,
+  count(s.id)                       as 등록된_기기수,
+  max(s.created_at)                 as 마지막_등록,
+  max(s.last_success_at)            as 마지막_발송성공
+from public.profiles p
+left join public.push_subscriptions s on s.user_id = p.id
+group by p.id, p.display_name, p.email
+order by p.email;
+
+
+-- 상대가 "채팅을 보고 있는 중"으로 판정되고 있는지.
+-- 서버는 chat_read_at 이 75초 안쪽이면 알림을 건너뜁니다.
+select
+  p.display_name,
+  w.chat_read_at,
+  round(extract(epoch from (now() - w.chat_read_at)))  as 몇초전에_봤나,
+  (now() - w.chat_read_at) < interval '75 seconds'     as 지금_보는중으로_판정
+from public.profiles p
+join public.user_preferences w on w.user_id = p.id
+order by p.email;

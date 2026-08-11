@@ -51,20 +51,28 @@ export async function sendMessage(content: string): Promise<SendResult> {
    * 확정되고, 안 기다리면 서버리스에서 함수가 먼저 종료돼 발송이 끊깁니다.
    */
   after(async () => {
-    const partnerId = await findPartnerId(auth.supabase, auth.userId);
-    if (!partnerId) return;
+    try {
+      const partnerId = await findPartnerId(auth.supabase, auth.userId);
+      if (!partnerId) {
+        console.error("[푸시] 상대방 프로필을 찾지 못했습니다.");
+        return;
+      }
 
-    const { data: me } = await auth.supabase
-      .from("profiles")
-      .select("display_name")
-      .eq("id", auth.userId)
-      .maybeSingle();
+      const { data: me } = await auth.supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", auth.userId)
+        .maybeSingle();
 
-    await notifyChat({
-      toUserId: partnerId,
-      fromName: me?.display_name || "메시지",
-      body: text,
-    });
+      await notifyChat({
+        toUserId: partnerId,
+        fromName: me?.display_name || "메시지",
+        body: text,
+      });
+    } catch (error) {
+      // after() 안에서 터진 예외는 아무 데도 안 남습니다. 직접 남깁니다.
+      console.error("[푸시] 알림 처리 중 오류:", error);
+    }
   });
 
   /*
