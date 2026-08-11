@@ -22,6 +22,7 @@ const SPARKLES = [
 export default function GoalsCard({
   collapsed,
   onToggleCollapse,
+  readOnly,
   goals,
   date,
 }: {
@@ -105,17 +106,20 @@ export default function GoalsCard({
     <DashboardCard
       collapsed={collapsed}
       onToggleCollapse={onToggleCollapse}
-      title="나의 목표"
+      /* 친구 기록을 볼 때 "나의 목표"는 어색해서 이 한 군데만 바꿉니다 */
+      title={readOnly ? "목표" : "나의 목표"}
       emoji="🎯"
       tone="green"
       badge={rows.length ? `${achieved}/${rows.length} 달성` : undefined}
       headerAction={
-        <GhostButton onClick={() => setOpen((v) => !v)}>
-          {open ? "닫기" : "+ 목표"}
-        </GhostButton>
+        readOnly ? undefined : (
+          <GhostButton onClick={() => setOpen((v) => !v)}>
+            {open ? "닫기" : "+ 목표"}
+          </GhostButton>
+        )
       }
     >
-      {open ? (
+      {open && !readOnly ? (
         <form onSubmit={submit} className="mb-3">
           <div className="mb-2 flex flex-wrap gap-1.5">
             {EMOJIS.map((e) => (
@@ -219,6 +223,7 @@ export default function GoalsCard({
                 <span className="shrink-0 text-[13px] text-muted">
                   {progress}/{goal.target}
                 </span>
+                {readOnly ? null : (
                 <button
                   type="button"
                   onClick={() => remove(goal.id)}
@@ -227,6 +232,7 @@ export default function GoalsCard({
                 >
                   ×
                 </button>
+                )}
               </div>
 
               <div className="mt-2 flex items-center gap-2">
@@ -236,6 +242,8 @@ export default function GoalsCard({
                     style={{ width: `${ratio * 100}%` }}
                   />
                 </div>
+                {readOnly ? null : (
+                  <>
                 <button
                   type="button"
                   onClick={() => step(goal, -1)}
@@ -252,6 +260,8 @@ export default function GoalsCard({
                 >
                   +
                 </button>
+                  </>
+                )}
               </div>
 
               {done ? (

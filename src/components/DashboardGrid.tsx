@@ -22,12 +22,15 @@ export default function DashboardGrid({
   cardOrder,
   hiddenCards,
   collapsedCards,
+  readOnly = false,
 }: {
   date: string;
   data: DashboardData;
   cardOrder: CardKey[];
   hiddenCards: CardKey[];
   collapsedCards: CardKey[];
+  /** 친구 기록을 볼 때 — 카드 안의 입력·추가·삭제를 모두 감춥니다. */
+  readOnly?: boolean;
 }) {
   const [collapsed, setCollapsed] = useState<CardKey[]>(collapsedCards);
   const [, startTransition] = useTransition();
@@ -49,6 +52,7 @@ export default function DashboardGrid({
     const chrome = {
       collapsed: collapsed.includes(key),
       onToggleCollapse: () => toggle(key),
+      readOnly,
     };
 
     switch (key) {

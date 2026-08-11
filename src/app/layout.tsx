@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Gaegu, Jua } from "next/font/google";
 import BottomTabs from "@/components/BottomTabs";
+import ThemeBackdrop from "@/components/ThemeBackdrop";
 import { getViewContext } from "@/lib/auth";
 import "./globals.css";
 
@@ -53,6 +54,7 @@ export default async function RootLayout({
       className={`${jua.variable} ${gaegu.variable}`}
     >
       <body>
+        <ThemeBackdrop theme={theme} mode={mode} />
         {children}
         <BottomTabs />
       </body>

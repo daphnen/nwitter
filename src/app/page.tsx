@@ -2,10 +2,11 @@ import { redirect } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import BackgroundDecor from "@/components/BackgroundDecor";
 import DateNav from "@/components/DateNav";
+import ViewToggle from "@/components/ViewToggle";
 import { CatMascot, Paw } from "@/components/Cat";
 import DashboardGrid from "@/components/DashboardGrid";
 import { getMyPreferences, getSessionState } from "@/lib/auth";
-import { getDashboardData } from "@/lib/queries";
+import { getDashboardData, getPartner } from "@/lib/queries";
 import { todayKey } from "@/lib/date";
 import { signOut } from "./login/actions";
 
@@ -17,7 +18,7 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; who?: string }>;
 }) {
   const session = await getSessionState();
 
@@ -41,30 +42,55 @@ export default async function HomePage({
     );
   }
 
-  const { profile } = session;
-  const { date: raw } = await searchParams;
-  const date = raw && DATE_PATTERN.test(raw) ? raw : todayKey();
+  const me = session.profile;
+  const sp = await searchParams;
+  const date = sp.date && DATE_PATTERN.test(sp.date) ? sp.date : todayKey();
 
+  const partner = await getPartner(me.id);
+  const viewing = sp.who === "partner" && partner ? "partner" : "me";
+  const viewed = viewing === "partner" && partner ? partner : me;
+
+  // 카드 순서·접힘·숨김은 "보는 사람"인 내 설정을 씁니다.
   const [data, prefs] = await Promise.all([
-    getDashboardData(profile.id, date),
-    getMyPreferences(profile.id),
+    getDashboardData(viewed.id, date),
+    getMyPreferences(me.id),
   ]);
 
   return (
     <>
+      {/*
+        루트 레이아웃은 searchParams 를 볼 수 없어서 로그인 유저의 테마로
+        <html> 을 그립니다. 친구 기록을 보는 중이라면 여기서 바로잡습니다.
+        본문보다 먼저 실행되므로 첫 화면이 깜빡이지 않습니다.
+      */}
+      {viewed.theme !== me.theme ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.dataset.theme=${JSON.stringify(
+              viewed.theme
+            )};`,
+          }}
+        />
+      ) : null}
+
       <BackgroundDecor />
 
       <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-32 pt-7">
-        <AppHeader profile={profile} />
-        <DateNav date={date} />
+        <AppHeader me={me} viewed={viewed} viewing={viewing} />
 
-        <DashboardGrid
-          date={date}
-          data={data}
-          cardOrder={prefs.cardOrder}
-          hiddenCards={prefs.hiddenCards}
-          collapsedCards={prefs.collapsedCards}
-        />
+        <DateNav date={date} who={viewing} />
+        <ViewToggle me={me} partner={partner} viewing={viewing} date={date} />
+
+        <div className="mt-5">
+          <DashboardGrid
+            date={date}
+            data={data}
+            cardOrder={prefs.cardOrder}
+            hiddenCards={prefs.hiddenCards}
+            collapsedCards={prefs.collapsedCards}
+            readOnly={viewing === "partner"}
+          />
+        </div>
 
         <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
           <Paw size={14} /> 오늘도 수고했어요

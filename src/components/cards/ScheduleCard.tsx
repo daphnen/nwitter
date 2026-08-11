@@ -24,6 +24,7 @@ function hhmm(time: string | null) {
 export default function ScheduleCard({
   collapsed,
   onToggleCollapse,
+  readOnly,
   date,
   items,
   events,
@@ -93,6 +94,7 @@ export default function ScheduleCard({
       tone="blue"
       badge={rows.length ? `${doneCount}/${rows.length} 완료` : undefined}
     >
+      {readOnly ? null : (
       <form onSubmit={submit} className="mb-3 flex items-center gap-2">
         <input
           type="time"
@@ -110,6 +112,7 @@ export default function ScheduleCard({
         />
         <AddButton label="일정 추가" />
       </form>
+      )}
 
       {isEmpty ? (
         <EmptyNote>오늘은 일정이 없어요. 푹 쉬어도 좋아요!</EmptyNote>
@@ -149,19 +152,33 @@ export default function ScheduleCard({
             key={item.id}
             className="group flex items-center gap-2.5 rounded-inner px-2 py-row transition hover:bg-tone-soft"
           >
-            <button
-              type="button"
-              onClick={() => toggle(item)}
-              aria-label={item.done ? "완료 취소" : "완료 표시"}
-              aria-pressed={item.done}
-              className={`paw-check grid size-6 shrink-0 place-items-center rounded-full border-2 ${
-                item.done
-                  ? "border-tone bg-tone text-on-accent"
-                  : "border-line bg-card-subtle text-transparent"
-              }`}
-            >
-              <Paw size={13} />
-            </button>
+            {/* 친구 기록에서는 체크가 눌리지 않게 span 으로 그립니다. */}
+            {readOnly ? (
+              <span
+                aria-hidden="true"
+                className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${
+                  item.done
+                    ? "border-tone bg-tone text-on-accent"
+                    : "border-line bg-card-subtle text-transparent"
+                }`}
+              >
+                <Paw size={13} />
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => toggle(item)}
+                aria-label={item.done ? "완료 취소" : "완료 표시"}
+                aria-pressed={item.done}
+                className={`paw-check grid size-6 shrink-0 place-items-center rounded-full border-2 ${
+                  item.done
+                    ? "border-tone bg-tone text-on-accent"
+                    : "border-line bg-card-subtle text-transparent"
+                }`}
+              >
+                <Paw size={13} />
+              </button>
+            )}
 
             {item.at_time ? (
               <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-[13px] text-muted">
@@ -177,7 +194,7 @@ export default function ScheduleCard({
               {item.title}
             </span>
 
-            <DeleteButton onClick={() => remove(item.id)} />
+            {readOnly ? null : <DeleteButton onClick={() => remove(item.id)} />}
           </li>
         ))}
 

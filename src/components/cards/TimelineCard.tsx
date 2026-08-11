@@ -19,6 +19,7 @@ function hhmm(time: string) {
 export default function TimelineCard({
   collapsed,
   onToggleCollapse,
+  readOnly,
   date,
   entries,
   tags,
@@ -81,6 +82,7 @@ export default function TimelineCard({
       tone="purple"
       badge={rows.length ? `${rows.length}개` : undefined}
     >
+      {readOnly ? null : (
       <form onSubmit={submit} className="mb-3">
         <div className="mb-2 flex flex-wrap gap-1.5">
           {tags.map((tag) => (
@@ -119,6 +121,7 @@ export default function TimelineCard({
           <AddButton label="기록 추가" />
         </div>
       </form>
+      )}
 
       {rows.length === 0 ? (
         <EmptyNote>아직 기록이 없어요. 지금 한 일을 적어볼까요?</EmptyNote>
@@ -153,7 +156,7 @@ export default function TimelineCard({
 
               <span className="min-w-0 flex-1 break-words">{entry.content}</span>
 
-              <DeleteButton onClick={() => remove(entry.id)} />
+              {readOnly ? null : <DeleteButton onClick={() => remove(entry.id)} />}
             </li>
           );
         })}

@@ -34,6 +34,7 @@ function toMeals(log: DailyLog | null): Meals {
 export default function MealsCard({
   collapsed,
   onToggleCollapse,
+  readOnly,
   date,
   dailyLog,
 }: {
@@ -84,28 +85,38 @@ export default function MealsCard({
                 {slot.label}
               </div>
 
-              <input
-                value={meal.text}
-                placeholder={slot.placeholder}
-                aria-label={`${slot.label} 기록`}
-                className={softInputClass}
-                onChange={(e) =>
-                  setMeals((prev) => ({
-                    ...prev,
-                    [slot.key]: { ...prev[slot.key], text: e.target.value },
-                  }))
-                }
-                onBlur={(e) => commitText(slot.key, e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
-              />
+              {readOnly ? (
+                <p className="min-h-11 px-1 py-2.5 text-[15px]">
+                  {meal.text || (
+                    <span className="text-muted">기록이 없어요</span>
+                  )}
+                </p>
+              ) : (
+                <input
+                  value={meal.text}
+                  placeholder={slot.placeholder}
+                  aria-label={`${slot.label} 기록`}
+                  className={softInputClass}
+                  onChange={(e) =>
+                    setMeals((prev) => ({
+                      ...prev,
+                      [slot.key]: { ...prev[slot.key], text: e.target.value },
+                    }))
+                  }
+                  onBlur={(e) => commitText(slot.key, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
+                />
+              )}
 
               <div className="flex gap-1 justify-self-end">
-                {MOODS.map((mood) => (
+                {/* 친구 기록에서는 고른 기분만 보여줍니다. */}
+                {(readOnly ? MOODS.filter((m) => m === meal.mood) : MOODS).map((mood) => (
                   <button
                     key={mood}
                     type="button"
+                    disabled={readOnly}
                     onClick={() => pickMood(slot.key, mood)}
                     aria-label={`${slot.label} 기분 ${mood}`}
                     aria-pressed={meal.mood === mood}

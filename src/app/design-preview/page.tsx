@@ -7,6 +7,7 @@ import DateNav from "@/components/DateNav";
 import AppHeader from "@/components/AppHeader";
 import { Paw } from "@/components/Cat";
 import DashboardGrid from "@/components/DashboardGrid";
+import ViewToggle from "@/components/ViewToggle";
 import { todayKey } from "@/lib/date";
 import { CARD_KEYS } from "@/lib/database.types";
 import type {
@@ -33,6 +34,16 @@ const profile: Profile = {
   display_name: "다프네",
   avatar_emoji: "🌙",
   theme: "moonlight",
+  created_at: now,
+  updated_at: now,
+};
+
+const partnerProfile: Profile = {
+  id: "u2",
+  email: "you@example.com",
+  display_name: "자기",
+  avatar_emoji: "💙",
+  theme: "aqua",
   created_at: now,
   updated_at: now,
 };
@@ -93,11 +104,15 @@ const keywords: NewsKeyword[] = [
 export default async function PreviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ theme?: string; mode?: string }>;
+  searchParams: Promise<{ theme?: string; mode?: string; who?: string }>;
 }) {
   const sp = await searchParams;
   const theme = sp.theme === "aqua" ? "aqua" : "moonlight";
   const mode = sp.mode === "dark" ? "dark" : "light";
+  const viewing = sp.who === "partner" ? ("partner" as const) : ("me" as const);
+  const viewedProfile = viewing === "partner" ? partnerProfile : profile;
+  // 실제 화면과 똑같이 "보고 있는 사람"의 테마를 따릅니다
+  const effectiveTheme = viewing === "partner" ? partnerProfile.theme : theme;
 
   return (
     <>
@@ -105,14 +120,21 @@ export default async function PreviewPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `document.documentElement.dataset.theme=${JSON.stringify(
-            theme
+            effectiveTheme
           )};document.documentElement.dataset.mode=${JSON.stringify(mode)};`,
         }}
       />
       <BackgroundDecor />
       <div className="relative z-[1] mx-auto max-w-[1180px] px-5 pb-32 pt-7">
-        <AppHeader profile={profile} />
-        <DateNav date={date} />
+        <AppHeader me={profile} viewed={viewedProfile} viewing={viewing} />
+        <DateNav date={date} who={viewing} />
+        <ViewToggle
+          me={profile}
+          partner={partnerProfile}
+          viewing={viewing}
+          date={date}
+        />
+        <div className="mt-5" />
 
         <DashboardGrid
           date={date}
@@ -129,6 +151,7 @@ export default async function PreviewPage({
           cardOrder={[...CARD_KEYS]}
           hiddenCards={[]}
           collapsedCards={[]}
+          readOnly={viewing === "partner"}
         />
 
         <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">

@@ -352,8 +352,10 @@
     position: relative;
     min-height: 100vh;
     background-color: var(--bg-base);
-    background-image: var(--bg-gradient);
-    background-attachment: fixed;
+    /*
+     * 그라데이션은 ThemeBackdrop 이 두 겹으로 깔아 교차 페이드합니다.
+     * background-image 는 transition 이 안 먹어서 여기 두면 뚝 끊깁니다.
+     */
     color: var(--text-primary);
     font-family: var(--stack-round);
     letter-spacing: 0.01em;

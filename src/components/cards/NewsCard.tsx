@@ -12,6 +12,7 @@ export default function NewsCard({
   keywords,
   collapsed,
   onToggleCollapse,
+  readOnly,
 }: { keywords: NewsKeyword[] } & CardChrome) {
   const [rows, setRows] = useState(keywords);
   const [open, setOpen] = useState(false);
@@ -58,12 +59,14 @@ export default function NewsCard({
       tone="yellow"
       badge={rows.length ? `${rows.length}개` : undefined}
       headerAction={
-        <GhostButton onClick={() => setOpen((v) => !v)}>
-          {open ? "닫기" : "+ 키워드"}
-        </GhostButton>
+        readOnly ? undefined : (
+          <GhostButton onClick={() => setOpen((v) => !v)}>
+            {open ? "닫기" : "+ 키워드"}
+          </GhostButton>
+        )
       }
     >
-      {open ? (
+      {open && !readOnly ? (
         <form onSubmit={submit} className="mb-3 flex items-center gap-2">
           <input
             value={draft}
@@ -86,14 +89,18 @@ export default function NewsCard({
               className="flex items-center overflow-hidden rounded-full border-2 border-line bg-card-subtle"
             >
               <span className="py-1 pl-3 pr-1 text-[13px]">#{row.keyword}</span>
-              <button
-                type="button"
-                onClick={() => remove(row.id)}
-                aria-label={`${row.keyword} 키워드 삭제`}
-                className="grid h-11 w-8 place-items-center text-base leading-none text-muted transition hover:text-accent-strong"
-              >
-                ×
-              </button>
+              {readOnly ? (
+                <span className="pr-3" />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => remove(row.id)}
+                  aria-label={`${row.keyword} 키워드 삭제`}
+                  className="grid h-11 w-8 place-items-center text-base leading-none text-muted transition hover:text-accent-strong"
+                >
+                  ×
+                </button>
+              )}
             </span>
           ))}
         </div>

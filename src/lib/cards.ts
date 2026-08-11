@@ -35,4 +35,6 @@ export function normalizeCardKeys(saved: unknown): CardKey[] {
 export type CardChrome = {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  /** 친구 기록을 볼 때. 입력·추가·삭제를 모두 감춥니다. */
+  readOnly?: boolean;
 };
