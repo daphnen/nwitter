@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { removePushSubscription, savePushSubscription } from "@/app/actions/push";
+import {
+  removePushSubscription,
+  savePushSubscription,
+  sendTestNotification,
+} from "@/app/actions/push";
 import { VAPID_PUBLIC_KEY, pushConfigured } from "@/lib/push/env";
 
 /**
@@ -136,6 +140,23 @@ export default function PushToggle() {
     }
   };
 
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+
+  const test = async () => {
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const result = await sendTestNotification();
+      setTestResult(result.message ?? "보냈어요.");
+    } catch (error) {
+      console.error(error);
+      setTestResult("시험 알림을 보내지 못했어요. 잠시 뒤 다시 시도해 주세요.");
+    } finally {
+      setTesting(false);
+    }
+  };
+
   const on = state === "on";
   const togglable = state === "on" || state === "off";
 
@@ -172,6 +193,24 @@ export default function PushToggle() {
         <p role="alert" className="mt-2 text-label text-accent-strong">
           🙀 {problem}
         </p>
+      ) : null}
+
+      {on ? (
+        <>
+          <button
+            type="button"
+            onClick={test}
+            disabled={testing}
+            className="mt-3 min-h-11 w-full rounded-inner border-2 border-line bg-card-subtle px-4 text-label text-muted transition disabled:opacity-50"
+          >
+            {testing ? "보내는 중…" : "🔔 시험 알림 보내기"}
+          </button>
+          {testResult ? (
+            <p role="status" className="mt-2 rounded-inner bg-card-subtle px-3 py-2 text-label leading-relaxed">
+              {testResult}
+            </p>
+          ) : null}
+        </>
       ) : null}
 
       {state === "no-keys" ? (

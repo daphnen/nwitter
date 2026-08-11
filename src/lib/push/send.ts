@@ -14,7 +14,8 @@ const BODY_LIMIT = 80;
  */
 const VIEWING_WINDOW_MS = 75_000;
 
-function configure(): boolean {
+/** 설정이 안 됐으면 사람이 읽을 수 있는 사유, 정상이면 null */
+export function pushSetupProblem(): string | null {
   /*
    * trim 합니다. 붙여넣을 때 줄바꿈이나 공백이 딸려오면 값이 있어도
    * web-push 가 거부합니다.
@@ -29,29 +30,30 @@ function configure(): boolean {
     !subject && "VAPID_SUBJECT",
   ].filter(Boolean);
 
+  /*
+   * 길이만 다룹니다. 값 자체는 로그에도 화면에도 절대 내보내지 않습니다.
+   * "아예 안 실림"과 "실렸는데 빈 값"을 구분하려는 것입니다.
+   * 정상값: 공개키 87자, 비밀키 43자, subject 는 mailto: 로 시작.
+   */
+  const lengths =
+    `공개키 ${publicKey.length}자, 비밀키 ${privateKey.length}자, ` +
+    `subject ${subject.length}자, service_role ${(process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length}자`;
+
   if (missing.length) {
-    /*
-     * 길이만 찍습니다. 값 자체는 절대 로그에 남기지 않습니다.
-     * "아예 안 실림"과 "실렸는데 빈 값"을 구분하려는 것입니다.
-     * 정상값 길이: 공개키 87, 비밀키 43, subject 는 mailto: 로 시작.
-     */
-    console.error(
-      "[푸시] 환경변수가 없습니다:",
-      missing.join(", "),
-      `| 길이 확인 → 공개키 ${publicKey.length}자, 비밀키 ${privateKey.length}자,` +
-        ` subject ${subject.length}자, service_role ${(process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length}자`
-    );
-    return false;
+    const why = `환경변수가 없어요: ${missing.join(", ")} (${lengths})`;
+    console.error("[푸시]", why);
+    return why;
   }
 
   try {
     // setVapidDetails 는 형식이 틀리면 예외를 던집니다.
     // 특히 subject 는 mailto: 나 https:// 로 시작해야 합니다.
     webpush.setVapidDetails(subject, publicKey, privateKey);
-    return true;
+    return null;
   } catch (error) {
-    console.error("[푸시] VAPID 설정이 잘못됐습니다:", (error as Error).message);
-    return false;
+    const why = `VAPID 값이 잘못됐어요: ${(error as Error).message} (${lengths})`;
+    console.error("[푸시]", why);
+    return why;
   }
 }
 
@@ -63,100 +65,140 @@ export type ChatNotice = {
   body: string;
 };
 
+export type PushOutcome = {
+  /** 보낸 기기 수 */
+  sent: number;
+  /** 그 사람이 등록해둔 기기 수 */
+  devices: number;
+  /** 사라져서 지운 기기 수 */
+  removed: number;
+  /** 못 보냈으면 사람이 읽을 수 있는 사유 */
+  problem?: string;
+};
+
 /**
- * 상대방의 모든 기기에 채팅 알림을 보냅니다.
+ * 한 사람의 모든 기기로 알림을 보냅니다.
  *
  * 실패해도 예외를 던지지 않습니다. 알림이 안 갔다고 메시지 전송이 실패한 것처럼
- * 보이면 안 됩니다. 문제는 서버 로그에만 남깁니다.
+ * 보이면 안 됩니다. 결과는 돌려주고, 부르는 쪽이 로그로 남기거나 화면에 띄웁니다.
  */
-export async function notifyChat(notice: ChatNotice): Promise<void> {
-  if (!configure()) return; // VAPID 키가 아직 없는 상태
+export async function pushToUser(
+  userId: string,
+  payload: { title: string; body: string; tag: string }
+): Promise<PushOutcome> {
+  const setup = pushSetupProblem();
+  if (setup) return { sent: 0, devices: 0, removed: 0, problem: setup };
 
   const admin = createAdminClient();
   if (!admin) {
-    console.error("[푸시] SUPABASE_SERVICE_ROLE_KEY 가 없어 구독을 읽지 못했습니다.");
-    return;
+    return {
+      sent: 0,
+      devices: 0,
+      removed: 0,
+      problem: "SUPABASE_SERVICE_ROLE_KEY 가 없어 구독을 읽지 못했어요.",
+    };
   }
 
-  // 상대가 지금 채팅을 보고 있으면 보내지 않습니다.
-  const { data: prefs } = await admin
-    .from("user_preferences")
-    .select("chat_read_at")
-    .eq("user_id", notice.toUserId)
-    .maybeSingle();
-
-  if (prefs?.chat_read_at) {
-    const idle = Date.now() - new Date(prefs.chat_read_at).getTime();
-    if (idle < VIEWING_WINDOW_MS) {
-      console.log(
-        `[푸시] 건너뜀 — 상대가 ${Math.round(idle / 1000)}초 전에 채팅을 봤습니다.`
-      );
-      return;
-    }
-  }
-
-  const { data: subs } = await admin
+  const { data: subs, error } = await admin
     .from("push_subscriptions")
     .select("*")
-    .eq("user_id", notice.toUserId);
+    .eq("user_id", userId);
 
+  if (error) {
+    return { sent: 0, devices: 0, removed: 0, problem: `구독을 읽지 못했어요: ${error.message}` };
+  }
   if (!subs?.length) {
-    console.log(`[푸시] 건너뜀 — ${notice.toUserId} 의 구독이 없습니다. 상대가 설정에서 알림을 켰는지 확인해 주세요.`);
-    return;
+    return {
+      sent: 0,
+      devices: 0,
+      removed: 0,
+      problem: "이 계정으로 알림을 켠 기기가 없어요. 설정에서 스위치를 켜주세요.",
+    };
   }
 
-  console.log(`[푸시] ${subs.length}개 기기로 발송 시작`);
-
-  const body =
-    notice.body.length > BODY_LIMIT
-      ? `${notice.body.slice(0, BODY_LIMIT)}…`
-      : notice.body;
-
-  const payload = JSON.stringify({
-    title: notice.fromName,
-    body,
+  const text = JSON.stringify({
+    title: payload.title,
+    body:
+      payload.body.length > BODY_LIMIT
+        ? `${payload.body.slice(0, BODY_LIMIT)}…`
+        : payload.body,
     url: "/chat",
-    // 같은 대화의 알림은 하나로 덮어씁니다. 여러 개가 쌓이지 않게.
-    tag: "chat",
+    tag: payload.tag,
   });
 
   const dead: string[] = [];
+  const failures: string[] = [];
+  let sent = 0;
 
   await Promise.all(
     subs.map(async (sub) => {
       try {
         await webpush.sendNotification(
-          {
-            endpoint: sub.endpoint,
-            keys: { p256dh: sub.p256dh, auth: sub.auth },
-          },
-          payload,
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          text,
           { TTL: 60 * 60 * 12 }
         );
+        sent++;
       } catch (error) {
         const status = (error as { statusCode?: number }).statusCode;
         // 404/410 = 그 기기의 구독이 사라졌습니다. 다시 보낼 일이 없으니 지웁니다.
         if (status === 404 || status === 410) {
           dead.push(sub.endpoint);
         } else {
-          console.error("[푸시] 발송 실패", status, (error as Error).message);
+          failures.push(`${status ?? "?"} ${(error as Error).message}`);
         }
       }
     })
   );
 
   if (dead.length) {
-    console.log(`[푸시] 사라진 구독 ${dead.length}개 삭제`);
     await admin.from("push_subscriptions").delete().in("endpoint", dead);
   }
-
-  // 마지막으로 성공한 시각. 설정 화면에서 기기를 정리할 때 참고합니다.
-  const alive = subs.filter((s) => !dead.includes(s.endpoint)).map((s) => s.endpoint);
-  console.log(`[푸시] 발송 성공 ${alive.length} / ${subs.length}`);
-  if (alive.length) {
+  if (sent) {
+    // 마지막으로 성공한 시각. 설정 화면에서 기기를 정리할 때 참고합니다.
+    const alive = subs.filter((s) => !dead.includes(s.endpoint)).map((s) => s.endpoint);
     await admin
       .from("push_subscriptions")
       .update({ last_success_at: new Date().toISOString() })
       .in("endpoint", alive);
   }
+
+  return {
+    sent,
+    devices: subs.length,
+    removed: dead.length,
+    problem: sent === 0 ? failures[0] ?? "모든 기기에서 발송에 실패했어요." : undefined,
+  };
+}
+
+/** 채팅 알림. 상대가 지금 보고 있으면 보내지 않습니다. */
+export async function notifyChat(notice: ChatNotice): Promise<void> {
+  const admin = createAdminClient();
+  if (admin) {
+    const { data: prefs } = await admin
+      .from("user_preferences")
+      .select("chat_read_at")
+      .eq("user_id", notice.toUserId)
+      .maybeSingle();
+
+    if (prefs?.chat_read_at) {
+      const idle = Date.now() - new Date(prefs.chat_read_at).getTime();
+      if (idle < VIEWING_WINDOW_MS) {
+        console.log(`[푸시] 건너뜀 — 상대가 ${Math.round(idle / 1000)}초 전에 채팅을 봤습니다.`);
+        return;
+      }
+    }
+  }
+
+  const result = await pushToUser(notice.toUserId, {
+    title: notice.fromName,
+    body: notice.body,
+    tag: "chat",
+  });
+
+  console.log(
+    `[푸시] 기기 ${result.devices}개 중 ${result.sent}개 성공` +
+      (result.removed ? `, 사라진 구독 ${result.removed}개 삭제` : "") +
+      (result.problem ? ` — ${result.problem}` : "")
+  );
 }
