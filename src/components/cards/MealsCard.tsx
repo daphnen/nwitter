@@ -68,7 +68,7 @@ export default function MealsCard({
       tone="orange"
       badge={`${filled}/3 기록`}
     >
-      <div className="flex flex-col gap-2.5">
+      <div className="meals-list flex flex-col gap-2.5">
         {SLOTS.map((slot) => {
           const meal = meals[slot.key];
           return (

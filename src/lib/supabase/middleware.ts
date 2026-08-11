@@ -57,6 +57,11 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!user && !isPublic(pathname)) {
+    // API 는 로그인 화면으로 보내면 fetch 쪽에서 HTML 을 받아 헷갈립니다.
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "로그인이 필요해요." }, { status: 401 });
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);

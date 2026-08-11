@@ -437,15 +437,24 @@
     transform: rotate(22deg);
   }
 
-  /* 아침/점심/저녁 한 줄 — 좁아지면 세로로 쌓입니다 */
+  /*
+   * 아침/점심/저녁 한 줄.
+   * 화면이 아니라 "카드 폭"을 기준으로 접어야 합니다. 넓은 화면이어도
+   * 2열 레이아웃에서는 카드가 좁아져 입력창이 기분 버튼에 밀립니다.
+   */
+  .meals-list {
+    container-type: inline-size;
+  }
   .meal-row {
     grid-template-columns: 84px minmax(0, 1fr) auto;
   }
-  @media (max-width: 560px) {
+  @container (max-width: 460px) {
     .meal-row {
-      grid-template-columns: 1fr;
+      grid-template-columns: 84px minmax(0, 1fr);
     }
+    /* 기분 버튼은 아래 줄로 내려 보냅니다 */
     .meal-row > :last-child {
+      grid-column: 1 / -1;
       justify-self: end;
     }
   }
