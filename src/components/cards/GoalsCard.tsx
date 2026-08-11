@@ -129,7 +129,7 @@ export default function GoalsCard({
                 onClick={() => setEmoji(e)}
                 aria-pressed={emoji === e}
                 aria-label={`아이콘 ${e}`}
-                className={`grid size-11 place-items-center rounded-xl border-2 text-base transition ${
+                className={`grid size-11 place-items-center rounded-xl border-2 text-body transition ${
                   emoji === e ? "border-tone bg-tone-soft" : "border-line bg-card-subtle"
                 }`}
               >
@@ -145,7 +145,7 @@ export default function GoalsCard({
                 type="button"
                 onClick={() => setPeriod(p)}
                 aria-pressed={period === p}
-                className={`min-h-9 rounded-full border-2 px-3 text-[13px] transition ${
+                className={`min-h-9 rounded-full border-2 px-3 text-label transition ${
                   period === p ? "border-tone bg-tone-soft" : "border-line bg-card-subtle"
                 }`}
               >
@@ -211,16 +211,16 @@ export default function GoalsCard({
                 : null}
 
               <div className="flex items-center gap-2">
-                <span aria-hidden="true" className="text-[17px]">
+                <span aria-hidden="true" className="text-heading">
                   {goal.emoji}
                 </span>
                 <span className="min-w-0 flex-1 break-words">{goal.title}</span>
                 {goal.period === "weekly" ? (
-                  <span className="shrink-0 rounded-full bg-tone-soft px-2 py-0.5 text-[11px] text-muted">
+                  <span className="shrink-0 rounded-full bg-tone-soft px-2 py-0.5 text-badge text-muted">
                     주간
                   </span>
                 ) : null}
-                <span className="shrink-0 text-[13px] text-muted">
+                <span className="shrink-0 text-label text-muted">
                   {progress}/{goal.target}
                 </span>
                 {readOnly ? null : (
@@ -228,7 +228,7 @@ export default function GoalsCard({
                   type="button"
                   onClick={() => remove(goal.id)}
                   aria-label={`${goal.title} 삭제`}
-                  className="grid size-11 shrink-0 place-items-center rounded-full text-lg leading-none text-muted opacity-0 transition hover:text-accent-strong focus-visible:opacity-100 group-hover:opacity-100 max-[900px]:opacity-60"
+                  className="grid size-11 shrink-0 place-items-center rounded-full text-heading leading-none text-muted opacity-0 transition hover:text-accent-strong focus-visible:opacity-100 group-hover:opacity-100 max-[900px]:opacity-60"
                 >
                   ×
                 </button>
@@ -248,7 +248,7 @@ export default function GoalsCard({
                   type="button"
                   onClick={() => step(goal, -1)}
                   aria-label="하나 줄이기"
-                  className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-line bg-card text-lg leading-none transition active:translate-y-px"
+                  className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-line bg-card text-heading leading-none transition active:translate-y-px"
                 >
                   −
                 </button>
@@ -256,7 +256,7 @@ export default function GoalsCard({
                   type="button"
                   onClick={() => step(goal, 1)}
                   aria-label="하나 늘리기"
-                  className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-tone bg-tone text-lg leading-none text-on-accent transition active:translate-y-px"
+                  className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-tone bg-tone text-heading leading-none text-on-accent transition active:translate-y-px"
                 >
                   +
                 </button>
@@ -265,7 +265,7 @@ export default function GoalsCard({
               </div>
 
               {done ? (
-                <span className="mt-1.5 inline-flex items-center gap-1.5 font-hand text-base font-bold text-accent-strong">
+                <span className="mt-1.5 inline-flex items-center gap-1.5 text-body text-accent-strong">
                   {/* 축하 연출은 테마가 고릅니다.
                       moonlight = 위쪽 반짝임 / aqua = 이 체크. CSS 가 하나만 보여줍니다. */}
                   <span

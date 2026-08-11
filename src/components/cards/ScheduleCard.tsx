@@ -128,18 +128,18 @@ export default function ScheduleCard({
           >
             <span
               aria-hidden="true"
-              className="grid size-6 shrink-0 place-items-center text-sm"
+              className="grid size-6 shrink-0 place-items-center text-label"
               title="시간표"
             >
               📚
             </span>
-            <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-[13px] text-muted">
+            <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-label text-muted">
               {hhmm(item.start_time)}
             </span>
             <span className="min-w-0 flex-1 break-words">
               {item.title}
               {item.location ? (
-                <span className="ml-1.5 text-[13px] text-muted">
+                <span className="ml-1.5 text-label text-muted">
                   {item.location}
                 </span>
               ) : null}
@@ -181,7 +181,7 @@ export default function ScheduleCard({
             )}
 
             {item.at_time ? (
-              <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-[13px] text-muted">
+              <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-label text-muted">
                 {hhmm(item.at_time)}
               </span>
             ) : null}
@@ -206,18 +206,18 @@ export default function ScheduleCard({
           >
             <span
               aria-hidden="true"
-              className="grid size-6 shrink-0 place-items-center text-sm"
+              className="grid size-6 shrink-0 place-items-center text-label"
               title="캘린더 일정"
             >
               📅
             </span>
 
             {!event.all_day && event.start_time ? (
-              <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-[13px] text-muted">
+              <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-label text-muted">
                 {hhmm(event.start_time)}
               </span>
             ) : (
-              <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-[13px] text-muted">
+              <span className="shrink-0 rounded-full bg-tone-soft px-2.5 py-0.5 text-label text-muted">
                 종일
               </span>
             )}
@@ -225,7 +225,7 @@ export default function ScheduleCard({
             <span className="min-w-0 flex-1 break-words">{event.title}</span>
 
             {event.owner_id === null ? (
-              <span className="shrink-0 rounded-full bg-tone-soft px-2 py-0.5 text-[11px] text-muted">
+              <span className="shrink-0 rounded-full bg-tone-soft px-2 py-0.5 text-badge text-muted">
                 함께
               </span>
             ) : null}

@@ -95,7 +95,7 @@ export default function DashboardGrid({
 
   if (visible.length === 0) {
     return (
-      <p className="rounded-card border-2 border-line bg-card p-card text-center text-sm text-muted shadow-card">
+      <p className="rounded-card border-2 border-line bg-card p-card text-center text-label text-muted shadow-card">
         보이는 카드가 없어요. 설정 → 카드 순서에서 다시 켤 수 있어요.
       </p>
     );

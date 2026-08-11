@@ -15,7 +15,7 @@ export default function DateNav({
 }) {
   const suffix = who === "partner" ? "&who=partner" : "";
   const arrow =
-    "grid size-11 place-items-center rounded-full border-2 border-line bg-card text-xl shadow-card-soft transition active:translate-y-px";
+    "grid size-11 place-items-center rounded-full border-2 border-line bg-card text-heading shadow-card-soft transition active:translate-y-px";
 
   return (
     <nav className="my-5 flex items-center justify-center gap-2.5">
@@ -23,10 +23,10 @@ export default function DateNav({
         ‹
       </Link>
 
-      <div className="flex items-center gap-2 rounded-full border-2 border-line bg-card px-5 py-2 text-xl shadow-card-soft">
+      <div className="flex items-center gap-2 rounded-full border-2 border-line bg-card px-5 py-2 text-heading shadow-card-soft">
         <strong>{formatKo(date)}</strong>
         {isToday(date) ? (
-          <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs">
+          <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-badge">
             오늘
           </span>
         ) : null}
@@ -39,7 +39,7 @@ export default function DateNav({
       {!isToday(date) ? (
         <Link
           href={`/?date=${todayKey()}${suffix}`}
-          className="min-h-11 rounded-full border-2 border-line px-4 text-xs leading-[2.4rem] text-muted transition hover:text-ink"
+          className="min-h-11 rounded-full border-2 border-line px-4 text-label leading-[2.4rem] text-muted transition hover:text-ink"
         >
           오늘로
         </Link>

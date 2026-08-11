@@ -58,7 +58,7 @@ export default function TimetableGrid({
           style={{ gridTemplateColumns: `repeat(${weekdays.length}, minmax(0,1fr))` }}
         >
           {weekdays.map((w) => (
-            <div key={w} className="pb-1.5 text-center text-sm">
+            <div key={w} className="pb-1.5 text-center text-label">
               {WEEKDAY_LABELS[w - 1]}
             </div>
           ))}
@@ -70,7 +70,7 @@ export default function TimetableGrid({
             {hourMarks.map((t) => (
               <span
                 key={t}
-                className="absolute right-1 -translate-y-1/2 text-[11px] text-muted"
+                className="absolute right-1 -translate-y-1/2 text-badge text-muted"
                 style={{ top: (t - range.from) * pxPerMinute }}
               >
                 {toTimeLabel(t)}
@@ -134,7 +134,7 @@ export default function TimetableGrid({
                       title={`${partnerName} · ${item.title} (${hhmm(
                         item.start_time
                       )}~${hhmm(item.end_time)})`}
-                      className="absolute overflow-hidden rounded-md border-2 border-dashed border-tone bg-card/60 px-1 py-0.5 text-[10px] leading-tight text-muted"
+                      className="absolute overflow-hidden rounded-md border-2 border-dashed border-tone bg-card/60 px-1 py-0.5 text-badge leading-tight text-muted"
                       style={{
                         top: top(item.start_time),
                         height: height(item),
@@ -151,7 +151,7 @@ export default function TimetableGrid({
                     <div
                       key={item.id}
                       data-tone={item.color_key}
-                      className="group absolute overflow-hidden rounded-md bg-tone px-1.5 py-1 text-[11px] leading-tight text-on-accent"
+                      className="group absolute overflow-hidden rounded-md bg-tone px-1.5 py-1 text-badge leading-tight text-on-accent"
                       style={{
                         top: top(item.start_time),
                         height: height(item),
@@ -159,7 +159,7 @@ export default function TimetableGrid({
                         width: `${(1 / columns) * 100}%`,
                       }}
                     >
-                      <span className="block truncate font-bold">{item.title}</span>
+                      <span className="block truncate">{item.title}</span>
                       {item.location ? (
                         <span className="block truncate opacity-80">
                           {item.location}
@@ -174,7 +174,7 @@ export default function TimetableGrid({
                           type="button"
                           onClick={() => onRemove(item.id)}
                           aria-label={`${item.title} 삭제`}
-                          className="absolute right-0 top-0 grid size-5 place-items-center rounded-bl-md bg-card/80 text-xs leading-none text-ink opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100 max-[900px]:opacity-70"
+                          className="absolute right-0 top-0 grid size-5 place-items-center rounded-bl-md bg-card/80 text-badge leading-none text-ink opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100 max-[900px]:opacity-70"
                         >
                           ×
                         </button>

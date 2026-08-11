@@ -3,7 +3,8 @@ import AppHeader from "@/components/AppHeader";
 import BackgroundDecor from "@/components/BackgroundDecor";
 import DateNav from "@/components/DateNav";
 import ViewToggle from "@/components/ViewToggle";
-import { CatMascot, Paw } from "@/components/Cat";
+import { CatMascot } from "@/components/Cat";
+import Signature from "@/components/Signature";
 import DashboardGrid from "@/components/DashboardGrid";
 import { getMyPreferences, getSessionState } from "@/lib/auth";
 import { getDashboardData, getPartner } from "@/lib/queries";
@@ -29,12 +30,12 @@ export default async function HomePage({
     return (
       <Centered>
         <CatMascot size={88} mood="sleepy" />
-        <h1 className="mt-3 text-xl">들어올 수 없는 계정이에요</h1>
-        <p className="mt-2 text-sm text-muted">
+        <h1 className="mt-3 text-title">들어올 수 없는 계정이에요</h1>
+        <p className="mt-2 text-label text-muted">
           {session.email} 은(는) 이 대시보드에 등록되어 있지 않아요.
         </p>
         <form action={signOut} className="mt-5">
-          <button className="min-h-11 rounded-full border-2 border-line bg-card-subtle px-5 text-sm">
+          <button className="min-h-11 rounded-full border-2 border-line bg-card-subtle px-5 text-label">
             로그아웃
           </button>
         </form>
@@ -92,9 +93,7 @@ export default async function HomePage({
           />
         </div>
 
-        <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
-          <Paw size={14} /> 오늘도 수고했어요
-        </footer>
+        <Signature />
       </div>
     </>
   );
@@ -114,12 +113,12 @@ function SetupNotice() {
   return (
     <Centered>
       <CatMascot size={88} mood="sleepy" />
-      <h1 className="mt-3 text-xl">환경변수가 아직 없어요</h1>
-      <p className="mt-3 text-left text-sm leading-relaxed text-muted">
+      <h1 className="mt-3 text-title">환경변수가 아직 없어요</h1>
+      <p className="mt-3 text-left text-label leading-relaxed text-muted">
         프로젝트 루트에 <code className="text-ink">.env.local</code> 을 만들고
         아래 값을 채워주세요.
       </p>
-      <pre className="mt-3 w-full overflow-x-auto rounded-inner bg-card-subtle px-4 py-3 text-left text-xs text-ink">
+      <pre className="mt-3 w-full overflow-x-auto rounded-inner bg-card-subtle px-4 py-3 text-left text-label text-ink">
         {`NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000`}

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import BackgroundDecor from "@/components/BackgroundDecor";
-import { Paw } from "@/components/Cat";
+import Signature from "@/components/Signature";
 
 /**
  * 탭 화면들이 공유하는 바깥 껍데기.
@@ -23,9 +23,7 @@ export default function PageShell({
       >
         {children}
 
-        <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
-          <Paw size={14} /> 오늘도 수고했어요
-        </footer>
+        <Signature />
       </div>
     </>
   );
@@ -46,12 +44,12 @@ export function PageHeader({
   return (
     <header className="mb-stack flex flex-wrap items-center gap-3 rounded-card border-2 border-line bg-card p-card shadow-card">
       <div className="min-w-0 flex-1">
-        <h1 className="flex items-center gap-2 text-2xl">
+        <h1 className="flex items-center gap-2 text-title">
           <span aria-hidden="true">{emoji}</span>
           {title}
         </h1>
         {subtitle ? (
-          <p className="mt-0.5 text-sm text-muted">{subtitle}</p>
+          <p className="mt-0.5 text-label text-muted">{subtitle}</p>
         ) : null}
       </div>
       {action}

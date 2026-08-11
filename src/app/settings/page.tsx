@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import BackgroundDecor from "@/components/BackgroundDecor";
-import { CatMascot, Paw } from "@/components/Cat";
+import { CatMascot } from "@/components/Cat";
+import Signature from "@/components/Signature";
 import { getMyPreferences, getSessionState } from "@/lib/auth";
 import { signOut } from "@/app/login/actions";
 import SettingsForm from "./SettingsForm";
@@ -24,12 +25,12 @@ export default async function SettingsPage() {
         <header className="mb-stack flex items-center gap-4 rounded-card border-2 border-line bg-card p-card shadow-card">
           <CatMascot size={64} />
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl">설정</h1>
-            <p className="mt-0.5 truncate text-sm text-muted">{profile.email}</p>
+            <h1 className="text-title">설정</h1>
+            <p className="mt-0.5 truncate text-label text-muted">{profile.email}</p>
           </div>
           <Link
             href="/"
-            className="min-h-11 shrink-0 rounded-full border-2 border-line px-4 text-xs leading-[2.4rem] text-muted transition hover:text-ink"
+            className="min-h-11 shrink-0 rounded-full border-2 border-line px-4 text-label leading-[2.4rem] text-muted transition hover:text-ink"
           >
             ← 홈
           </Link>
@@ -48,14 +49,12 @@ export default async function SettingsPage() {
         </div>
 
         <form action={signOut} className="mt-stack flex justify-center">
-          <button className="min-h-11 rounded-full border-2 border-line px-5 text-sm text-muted transition hover:text-ink">
+          <button className="min-h-11 rounded-full border-2 border-line px-5 text-label text-muted transition hover:text-ink">
             로그아웃
           </button>
         </form>
 
-        <footer className="mt-9 flex items-center justify-center gap-2 font-hand text-lg font-bold text-muted">
-          <Paw size={14} /> 오늘도 수고했어요
-        </footer>
+        <Signature />
       </div>
     </>
   );

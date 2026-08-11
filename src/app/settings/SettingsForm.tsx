@@ -82,10 +82,10 @@ export default function SettingsForm({
     <div className="flex flex-col gap-stack">
       {/* 테마 ------------------------------------------------------------ */}
       <section className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card" data-tone="pink">
-        <h2 className="mb-1 flex items-center gap-2 text-xl">
+        <h2 className="mb-1 flex items-center gap-2 text-heading">
           <span aria-hidden="true">🎨</span> 테마
         </h2>
-        <p className="mb-3.5 text-sm text-muted">
+        <p className="mb-3.5 text-label text-muted">
           내 화면 색감이에요. 상대방 화면은 그대로예요.
         </p>
 
@@ -115,7 +115,7 @@ export default function SettingsForm({
                     {selected ? <Paw size={11} /> : null}
                   </span>
                   <strong>{t.label}</strong>
-                  <span className="text-sm text-muted">{t.blurb}</span>
+                  <span className="text-label text-muted">{t.blurb}</span>
                 </span>
                 <ThemeSwatch theme={t.key} mode={darkMode ? "dark" : "light"} />
               </button>
@@ -126,10 +126,10 @@ export default function SettingsForm({
 
       {/* 밤 모드 --------------------------------------------------------- */}
       <section className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card" data-tone="purple">
-        <h2 className="mb-1 flex items-center gap-2 text-xl">
+        <h2 className="mb-1 flex items-center gap-2 text-heading">
           <span aria-hidden="true">🌙</span> 밤 모드
         </h2>
-        <p className="mb-3.5 text-sm text-muted">
+        <p className="mb-3.5 text-label text-muted">
           테마는 그대로 두고 어두운 팔레트로 바꿔요.
         </p>
 
@@ -158,10 +158,10 @@ export default function SettingsForm({
 
       {/* 이름 ------------------------------------------------------------ */}
       <section className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card" data-tone="mint">
-        <h2 className="mb-1 flex items-center gap-2 text-xl">
+        <h2 className="mb-1 flex items-center gap-2 text-heading">
           <span aria-hidden="true">🐱</span> 표시 이름
         </h2>
-        <p className="mb-3.5 text-sm text-muted">헤더 인사말에 쓰여요.</p>
+        <p className="mb-3.5 text-label text-muted">헤더 인사말에 쓰여요.</p>
 
         <input
           value={name}
@@ -172,7 +172,7 @@ export default function SettingsForm({
           }}
           maxLength={20}
           aria-label="표시 이름"
-          className="min-h-11 w-full rounded-full border-2 border-line bg-card-subtle px-4 text-[15px] outline-none transition focus:border-tone focus:ring-4 focus:ring-tone-soft"
+          className="min-h-11 w-full rounded-full border-2 border-line bg-card-subtle px-4 text-body outline-none transition focus:border-tone focus:ring-4 focus:ring-tone-soft"
         />
       </section>
     </div>

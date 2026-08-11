@@ -119,17 +119,17 @@ export default function CalendarView({
         <Link
           href={`/calendar?month=${shiftMonth(month, -1)}`}
           aria-label="이전 달"
-          className="grid size-11 place-items-center rounded-full border-2 border-line bg-card text-xl shadow-card-soft"
+          className="grid size-11 place-items-center rounded-full border-2 border-line bg-card text-heading shadow-card-soft"
         >
           ‹
         </Link>
-        <div className="rounded-full border-2 border-line bg-card px-5 py-2 text-xl shadow-card-soft">
+        <div className="rounded-full border-2 border-line bg-card px-5 py-2 text-heading shadow-card-soft">
           <strong>{formatMonthKo(month)}</strong>
         </div>
         <Link
           href={`/calendar?month=${shiftMonth(month, 1)}`}
           aria-label="다음 달"
-          className="grid size-11 place-items-center rounded-full border-2 border-line bg-card text-xl shadow-card-soft"
+          className="grid size-11 place-items-center rounded-full border-2 border-line bg-card text-heading shadow-card-soft"
         >
           ›
         </Link>
@@ -144,7 +144,7 @@ export default function CalendarView({
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
-              className={`pb-1 text-center text-xs ${
+              className={`pb-1 text-center text-label ${
                 i >= 5 ? "text-accent-strong" : "text-muted"
               }`}
             >
@@ -169,8 +169,8 @@ export default function CalendarView({
                 } ${inMonth ? "" : "opacity-40"}`}
               >
                 <span
-                  className={`text-center text-xs ${
-                    day === today ? "font-bold text-accent-strong" : ""
+                  className={`text-center text-label ${
+                    day === today ? "text-accent-strong" : ""
                   }`}
                 >
                   {Number(day.slice(8))}
@@ -191,7 +191,7 @@ export default function CalendarView({
         </div>
 
         {/* 색 범례 */}
-        <div className="mt-3 flex flex-wrap justify-center gap-3 text-xs text-muted">
+        <div className="mt-3 flex flex-wrap justify-center gap-3 text-badge text-muted">
           {(["mine", "partner", "shared"] as const).map((k) => (
             <span key={k} className="flex items-center gap-1.5">
               <span
@@ -209,7 +209,7 @@ export default function CalendarView({
         data-tone="mint"
         className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card"
       >
-        <h2 className="mb-3.5 flex items-center gap-2 text-xl">
+        <h2 className="mb-3.5 flex items-center gap-2 text-heading">
           <span aria-hidden="true">📌</span>
           {formatKo(selectedDate)}
         </h2>
@@ -228,7 +228,7 @@ export default function CalendarView({
                 onClick={() => setOwner(value)}
                 aria-pressed={owner === value}
                 data-tone={value === "shared" ? "mint" : "blue"}
-                className={`min-h-9 rounded-full border-2 px-3 text-[13px] transition ${
+                className={`min-h-9 rounded-full border-2 px-3 text-label transition ${
                   owner === value
                     ? "border-tone bg-tone-soft"
                     : "border-line bg-card-subtle"
@@ -242,7 +242,7 @@ export default function CalendarView({
               type="button"
               onClick={() => setAllDay((v) => !v)}
               aria-pressed={allDay}
-              className={`min-h-9 rounded-full border-2 px-3 text-[13px] transition ${
+              className={`min-h-9 rounded-full border-2 px-3 text-label transition ${
                 allDay ? "border-tone bg-tone-soft" : "border-line bg-card-subtle"
               }`}
             >
@@ -288,13 +288,13 @@ export default function CalendarView({
                 className="group flex items-center gap-2.5 rounded-inner bg-tone-soft px-3 py-row"
               >
                 <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-tone" />
-                <span className="shrink-0 text-[13px] text-muted">
+                <span className="shrink-0 text-label text-muted">
                   {event.all_day || !event.start_time
                     ? "종일"
                     : event.start_time.slice(0, 5)}
                 </span>
                 <span className="min-w-0 flex-1 break-words">{event.title}</span>
-                <span className="shrink-0 text-[11px] text-muted">
+                <span className="shrink-0 text-badge text-muted">
                   {own === "partner" && partner
                     ? partner.display_name
                     : OWNER_LABEL[own]}
@@ -304,7 +304,7 @@ export default function CalendarView({
                     type="button"
                     onClick={() => remove(event.id)}
                     aria-label={`${event.title} 삭제`}
-                    className="grid size-11 shrink-0 place-items-center rounded-full text-lg leading-none text-muted opacity-0 transition hover:text-accent-strong focus-visible:opacity-100 group-hover:opacity-100 max-[900px]:opacity-60"
+                    className="grid size-11 shrink-0 place-items-center rounded-full text-heading leading-none text-muted opacity-0 transition hover:text-accent-strong focus-visible:opacity-100 group-hover:opacity-100 max-[900px]:opacity-60"
                   >
                     ×
                   </button>

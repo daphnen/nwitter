@@ -78,15 +78,15 @@ export default function MealsCard({
                 meal.text.trim() ? "bg-tone-soft" : ""
               }`}
             >
-              <div className="flex items-center gap-1.5 whitespace-nowrap text-[15px]">
-                <span aria-hidden="true" className="text-[17px]">
+              <div className="flex items-center gap-1.5 whitespace-nowrap text-body">
+                <span aria-hidden="true" className="text-heading">
                   {slot.emoji}
                 </span>
                 {slot.label}
               </div>
 
               {readOnly ? (
-                <p className="min-h-11 px-1 py-2.5 text-[15px]">
+                <p className="min-h-11 px-1 py-2.5 text-body">
                   {meal.text || (
                     <span className="text-muted">기록이 없어요</span>
                   )}
@@ -120,7 +120,7 @@ export default function MealsCard({
                     onClick={() => pickMood(slot.key, mood)}
                     aria-label={`${slot.label} 기분 ${mood}`}
                     aria-pressed={meal.mood === mood}
-                    className={`grid size-11 place-items-center rounded-xl border-2 text-sm transition ${
+                    className={`grid size-11 place-items-center rounded-xl border-2 text-label transition ${
                       meal.mood === mood
                         ? "border-tone bg-card"
                         : "border-transparent"

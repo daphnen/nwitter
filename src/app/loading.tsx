@@ -13,7 +13,7 @@ export default function Loading() {
       <div className="cat-bob">
         <CatMascot size={72} />
       </div>
-      <p className="font-hand text-lg font-bold text-muted">불러오는 중…</p>
+      <p className="text-heading text-muted">불러오는 중…</p>
     </div>
   );
 }

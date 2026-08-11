@@ -57,7 +57,7 @@ export default function ViewToggle({
               type="button"
               onClick={() => go(key, profile.theme)}
               aria-pressed={active}
-              className={`flex min-h-11 items-center gap-1.5 rounded-full px-3.5 text-sm transition ${
+              className={`flex min-h-11 items-center gap-1.5 rounded-full px-3.5 text-label transition ${
                 active ? "bg-accent-soft text-ink" : "text-muted hover:text-ink"
               }`}
             >

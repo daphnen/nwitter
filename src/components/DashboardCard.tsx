@@ -35,8 +35,8 @@ export default function DashboardCard({
 
   const headerInner = (
     <>
-      <h2 className="flex min-w-0 items-center gap-2 text-xl">
-        <span aria-hidden="true" className="text-[22px]">
+      <h2 className="flex min-w-0 items-center gap-2 text-heading">
+        <span aria-hidden="true" className="text-title">
           {emoji}
         </span>
         <span className="truncate">{title}</span>
@@ -44,7 +44,7 @@ export default function DashboardCard({
 
       <span className="ml-auto flex shrink-0 items-center gap-2">
         {badge ? (
-          <span className="rounded-full bg-tone-soft px-3 py-1 text-xs whitespace-nowrap">
+          <span className="rounded-full bg-tone-soft px-3 py-1 text-badge whitespace-nowrap">
             {badge}
           </span>
         ) : null}
@@ -113,7 +113,7 @@ export default function DashboardCard({
 /** 기록이 없을 때 카드가 비어 보이지 않도록 넣는 안내 문구 */
 export function EmptyNote({ children }: { children: ReactNode }) {
   return (
-    <p className="my-1.5 flex items-center gap-2 px-0.5 font-hand text-[17px] font-bold text-muted">
+    <p className="my-1.5 flex items-center gap-2 px-0.5 text-body text-muted">
       <span aria-hidden="true">🐾</span>
       {children}
     </p>

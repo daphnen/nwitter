@@ -339,6 +339,57 @@
 @theme {
   /* 프로토타입의 900px 분기 */
   --breakpoint-wide: 56.25rem;
+
+  /* --------------------------------------------------------------------
+     글자 크기 단계
+     --------------------------------------------------------------------
+     Tailwind 기본 단계(text-xs … text-9xl)를 통째로 지웁니다. 그래야
+     text-sm 이나 text-[13px] 을 쓰면 클래스가 아예 안 만들어져서, 정해진
+     단계 밖으로 새는 걸 바로 알아챌 수 있습니다.
+
+     크기·행간·굵기를 한 덩어리로 묶어 뒀으므로 컴포넌트에는 단계 이름만
+     씁니다. 주아는 400 한 벌뿐이라 굵기는 전부 400 입니다. 굵게 쓰면
+     브라우저가 억지로 살을 붙여(가짜 볼드) 뭉개집니다. 강약은 크기와
+     색으로 냅니다.
+
+     글꼴 관련 토큰은 테마를 타지 않습니다. 테마는 색만 바꿉니다.
+     ------------------------------------------------------------------ */
+  --text-*: initial;
+
+  /* 앱 이름·화면 대표 제목 */
+  --text-display: 1.875rem; /* 30px */
+  --text-display--line-height: 1.3;
+  --text-display--font-weight: 400;
+
+  /* 탭 화면 제목 */
+  --text-title: 1.375rem; /* 22px */
+  --text-title--line-height: 1.35;
+  --text-title--font-weight: 400;
+
+  /*
+   * 카드 제목.
+   * 이름이 "card" 가 아닌 이유: 색 토큰에 --color-card(카드 배경)가 있어서
+   * text-card 를 쓰면 Tailwind 가 글자 크기가 아니라 글자색으로 해석합니다.
+   * 카드 제목이 배경색으로 칠해집니다. 단계 이름은 색 이름과 겹치면 안 됩니다.
+   */
+  --text-heading: 1.125rem; /* 18px */
+  --text-heading--line-height: 1.4;
+  --text-heading--font-weight: 400;
+
+  /* 본문 */
+  --text-body: 0.9375rem; /* 15px */
+  --text-body--line-height: 1.6;
+  --text-body--font-weight: 400;
+
+  /* 보조 텍스트 — 설명, 시각, 거드는 문구 */
+  --text-label: 0.8125rem; /* 13px */
+  --text-label--line-height: 1.55;
+  --text-label--font-weight: 400;
+
+  /* 배지·아주 작은 라벨 */
+  --text-badge: 0.6875rem; /* 11px */
+  --text-badge--line-height: 1.45;
+  --text-badge--font-weight: 400;
 }
 
 /* ========================================================================= */
@@ -346,6 +397,17 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+  }
+
+  /*
+   * 입력칸만 16px 입니다. 그보다 작으면 iOS 사파리가 focus 할 때 화면을
+   * 확대해 버립니다. 본문(15px)과 2px 차이라 눈에 띄지 않습니다.
+   */
+  input,
+  textarea,
+  select {
+    font-size: 1rem;
+    font-family: inherit;
   }
 
   body {
@@ -358,6 +420,8 @@
      */
     color: var(--text-primary);
     font-family: var(--stack-round);
+    font-size: var(--text-body);
+    line-height: 1.6;
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
     /* 친구 기록을 볼 때(6단계) 테마가 부드럽게 넘어가도록 */

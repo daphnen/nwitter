@@ -37,13 +37,13 @@ export default function BottomTabs() {
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-full px-2 py-1 text-[11px] transition ${
+                className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-full px-2 py-1 text-badge transition ${
                   active
                     ? "bg-accent-soft text-ink"
                     : "text-muted hover:text-ink"
                 }`}
               >
-                <span aria-hidden="true" className="text-base leading-none">
+                <span aria-hidden="true" className="text-body leading-none">
                   {tab.emoji}
                 </span>
                 {tab.label}

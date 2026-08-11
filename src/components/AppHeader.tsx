@@ -35,11 +35,11 @@ export default function AppHeader({
       </div>
 
       <div className="min-w-60 flex-1">
-        <p className="font-hand text-xl font-bold text-muted">
+        <p className="text-heading text-muted">
           {hello.emoji} {hello.text}
         </p>
-        <h1 className="text-3xl">우리의 대시보드</h1>
-        <p className="mt-1 text-sm text-muted">
+        <h1 className="text-display">우리의 대시보드</h1>
+        <p className="mt-1 text-label text-muted">
           {lookingAtPartner ? (
             <>
               <span aria-hidden="true">{viewed.avatar_emoji}</span>{" "}

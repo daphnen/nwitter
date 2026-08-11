@@ -183,7 +183,7 @@ export default function TimetableView({
         <p
           role="alert"
           data-tone="orange"
-          className="flex items-start gap-2 rounded-inner border-2 border-tone bg-tone-soft px-4 py-3 text-sm"
+          className="flex items-start gap-2 rounded-inner border-2 border-tone bg-tone-soft px-4 py-3 text-label"
         >
           <span aria-hidden="true">🙀</span>
           <span className="flex-1">{problem}</span>
@@ -204,7 +204,7 @@ export default function TimetableView({
         className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card"
       >
         <header className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="flex items-center gap-2 text-xl">
+          <h2 className="flex items-center gap-2 text-heading">
             <span aria-hidden="true">📚</span> 시간표 목록
           </h2>
           <GhostButton onClick={() => setOpenTable((v) => !v)}>
@@ -222,7 +222,7 @@ export default function TimetableView({
               className={inputClass}
             />
             <div className="flex flex-wrap items-center gap-2">
-              <label className="text-xs text-muted">기간</label>
+              <label className="text-label text-muted">기간</label>
               <input
                 type="date"
                 value={from}
@@ -251,7 +251,7 @@ export default function TimetableView({
                   type="button"
                   onClick={() => setDays(value)}
                   aria-pressed={days === value}
-                  className={`min-h-9 rounded-full border-2 px-3 text-[13px] transition ${
+                  className={`min-h-9 rounded-full border-2 px-3 text-label transition ${
                     days === value
                       ? "border-tone bg-tone-soft"
                       : "border-line bg-card-subtle"
@@ -263,7 +263,7 @@ export default function TimetableView({
               <span className="flex-1" />
               <AddButton label="시간표 추가" />
             </div>
-            <p className="text-xs text-muted">
+            <p className="text-badge text-muted">
               기간을 비워두면 계속 유효해요. 기간이 지나면 홈과 기본 선택에서 자동으로 빠집니다.
             </p>
           </form>
@@ -285,11 +285,11 @@ export default function TimetableView({
                 >
                   <Link
                     href={`/timetable?tt=${t.id}`}
-                    className="py-1.5 pl-3 pr-1 text-[13px]"
+                    className="py-1.5 pl-3 pr-1 text-label"
                   >
                     {t.name}
                     {status ? (
-                      <span className="ml-1 text-[11px] text-muted">({status})</span>
+                      <span className="ml-1 text-badge text-muted">({status})</span>
                     ) : null}
                   </Link>
                   <button
@@ -299,7 +299,7 @@ export default function TimetableView({
                         save(() => removeTimetable(t.id));
                     }}
                     aria-label={`${t.name} 삭제`}
-                    className="grid h-11 w-8 place-items-center text-base leading-none text-muted transition hover:text-accent-strong"
+                    className="grid h-11 w-8 place-items-center text-body leading-none text-muted transition hover:text-accent-strong"
                   >
                     ×
                   </button>
@@ -310,7 +310,7 @@ export default function TimetableView({
         )}
 
         {selected ? (
-          <p className="mt-2 text-xs text-muted">
+          <p className="mt-2 text-label text-muted">
             {periodLabel(selected)} ·{" "}
             {selected.days === "mon_sun" ? "월~일" : "월~금"}
           </p>
@@ -324,14 +324,14 @@ export default function TimetableView({
           className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card"
         >
           <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-xl">{selected.name}</h2>
+            <h2 className="text-heading">{selected.name}</h2>
             <div className="flex items-center gap-2">
               {partnerName ? (
                 <button
                   type="button"
                   onClick={() => setShowPartner((v) => !v)}
                   aria-pressed={showPartner}
-                  className={`min-h-9 rounded-full border-2 px-3 text-xs transition ${
+                  className={`min-h-9 rounded-full border-2 px-3 text-label transition ${
                     showPartner
                       ? "border-tone bg-tone-soft text-ink"
                       : "border-line text-muted"
@@ -355,7 +355,7 @@ export default function TimetableView({
                     type="button"
                     onClick={() => toggleWeekday(w)}
                     aria-pressed={weekdays.includes(w)}
-                    className={`grid size-11 place-items-center rounded-full border-2 text-[13px] transition ${
+                    className={`grid size-11 place-items-center rounded-full border-2 text-label transition ${
                       weekdays.includes(w)
                         ? "border-tone bg-tone-soft"
                         : "border-line bg-card-subtle"
@@ -421,7 +421,7 @@ export default function TimetableView({
           ) : null}
 
           {showPartner ? (
-            <p className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+            <p className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-badge text-muted">
               <span className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded-full bg-tone" /> 내 일정
               </span>

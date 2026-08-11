@@ -6,14 +6,25 @@ import ThemeBackdrop from "@/components/ThemeBackdrop";
 import { getViewContext } from "@/lib/auth";
 import "./globals.css";
 
-// next/font 는 이 두 폰트의 서브셋을 `latin` 하나로만 알고 있습니다.
-// latin 만 요청하면 한글 글리프가 빠지므로, subsets 를 지정하지 않고
-// (= preload 를 끄고) 전체 unicode-range 를 받아옵니다.
+/*
+ * 글꼴은 두 벌뿐입니다. 주아가 본문 전체, 개구는 화면 맨 아래 서명 한 줄
+ * (components/Signature.tsx)에만 씁니다. 세 테마 모두 같은 글꼴을 씁니다 —
+ * 테마는 색만 바꾸는 것이 원칙입니다.
+ *
+ * next/font 는 이 두 폰트의 서브셋을 `latin` 하나로만 알고 있습니다.
+ * latin 만 요청하면 한글 글리프가 빠지므로, subsets 를 지정하지 않고
+ * (= preload 를 끄고) 전체 unicode-range 를 받아옵니다.
+ *
+ * fallback 을 적어두는 이유: next/font 가 이 목록의 첫 글꼴 지표에 맞춰
+ * size-adjust 를 계산한 대체 글꼴을 자동으로 만들어 줍니다. 웹폰트가 늦게
+ * 와도 글자 크기가 거의 그대로라 화면이 밀리지 않습니다.
+ */
 const jua = Jua({
   weight: "400",
   preload: false,
   variable: "--font-jua",
   display: "swap",
+  fallback: ["Apple SD Gothic Neo", "Malgun Gothic", "sans-serif"],
 });
 
 const gaegu = Gaegu({
@@ -21,6 +32,7 @@ const gaegu = Gaegu({
   preload: false,
   variable: "--font-gaegu",
   display: "swap",
+  fallback: ["Apple SD Gothic Neo", "Malgun Gothic", "sans-serif"],
 });
 
 export const metadata: Metadata = {

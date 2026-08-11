@@ -58,7 +58,7 @@ function SortableRow({
         ⠿
       </button>
 
-      <span aria-hidden="true" className="text-lg">
+      <span aria-hidden="true" className="text-heading">
         {meta.emoji}
       </span>
       <span className={`min-w-0 flex-1 truncate ${hidden ? "text-muted" : ""}`}>
@@ -73,7 +73,7 @@ function SortableRow({
         onClick={onToggleHidden}
         className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-2"
       >
-        <span className="text-xs text-muted">{hidden ? "숨김" : "표시"}</span>
+        <span className="text-badge text-muted">{hidden ? "숨김" : "표시"}</span>
         <span
           aria-hidden="true"
           className={`relative h-7 w-12 shrink-0 rounded-full transition ${
@@ -137,10 +137,10 @@ export default function CardOrderEditor({
       data-tone="blue"
       className="cat-card rounded-card border-2 border-line bg-card p-card shadow-card"
     >
-      <h2 className="mb-1 flex items-center gap-2 text-xl">
+      <h2 className="mb-1 flex items-center gap-2 text-heading">
         <span aria-hidden="true">🔀</span> 카드 순서
       </h2>
-      <p className="mb-3.5 text-sm text-muted">
+      <p className="mb-3.5 text-label text-muted">
         손잡이(⠿)를 끌어 순서를 바꿔요. 폰에서는 잠깐 누르고 있으면 잡힙니다.
       </p>
 

@@ -156,7 +156,7 @@ export default function NewsCard({
                   type="button"
                   onClick={() => setActiveId(row.id)}
                   aria-pressed={isActive}
-                  className="min-h-11 py-1 pl-3 pr-1 text-[13px]"
+                  className="min-h-11 py-1 pl-3 pr-1 text-label"
                 >
                   #{row.keyword}
                 </button>
@@ -167,7 +167,7 @@ export default function NewsCard({
                     type="button"
                     onClick={() => remove(row.id)}
                     aria-label={`${row.keyword} 키워드 삭제`}
-                    className="grid h-11 w-8 place-items-center text-base leading-none text-muted transition hover:text-accent-strong"
+                    className="grid h-11 w-8 place-items-center text-body leading-none text-muted transition hover:text-accent-strong"
                   >
                     ×
                   </button>
@@ -179,11 +179,11 @@ export default function NewsCard({
       )}
 
       {feed.status === "loading" ? (
-        <p className="px-1 py-2 text-sm text-muted">기사를 물어오는 중… 🐈</p>
+        <p className="px-1 py-2 text-label text-muted">기사를 물어오는 중… 🐈</p>
       ) : null}
 
       {feed.status === "error" ? (
-        <div className="rounded-inner bg-tone-soft px-4 py-3 text-sm">
+        <div className="rounded-inner bg-tone-soft px-4 py-3 text-label">
           <p>{feed.message}</p>
           {feed.fallbackUrl ? (
             <a
@@ -215,10 +215,10 @@ export default function NewsCard({
                 rel="noreferrer"
                 className="block rounded-inner px-2.5 py-2.5 transition hover:bg-tone-soft"
               >
-                <span className="block break-words text-[15px] leading-snug">
+                <span className="block break-words text-body leading-snug">
                   {item.title}
                 </span>
-                <span className="mt-1 flex gap-2 text-xs text-muted">
+                <span className="mt-1 flex gap-2 text-badge text-muted">
                   {item.source ? <span>{item.source}</span> : null}
                   {item.publishedAt ? (
                     <span>{timeAgo(item.publishedAt)}</span>

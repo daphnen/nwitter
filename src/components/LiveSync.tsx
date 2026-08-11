@@ -190,7 +190,7 @@ export default function LiveSync({
   return (
     <span
       aria-live="polite"
-      className={`rounded-full border-2 px-3 py-1 text-xs transition-colors duration-300 ${look}`}
+      className={`rounded-full border-2 px-3 py-1 text-badge transition-colors duration-300 ${look}`}
     >
       {text}
     </span>

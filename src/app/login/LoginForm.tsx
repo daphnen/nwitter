@@ -47,7 +47,7 @@ export default function LoginForm({ next }: { next: string }) {
       {state ? (
         <p
           role="status"
-          className={`rounded-inner px-4 py-3 text-center text-sm ${
+          className={`rounded-inner px-4 py-3 text-center text-label ${
             state.ok ? "bg-tone-green-soft" : "bg-tone-orange-soft"
           }`}
         >

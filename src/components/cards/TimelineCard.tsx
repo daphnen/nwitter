@@ -92,7 +92,7 @@ export default function TimelineCard({
               data-tone={tag.color_key}
               onClick={() => setTagId(tag.id)}
               aria-pressed={tagId === tag.id}
-              className={`min-h-9 rounded-full border-2 px-3 text-[13px] transition ${
+              className={`min-h-9 rounded-full border-2 px-3 text-label transition ${
                 tagId === tag.id
                   ? "border-tone bg-tone-soft"
                   : "border-line bg-card-subtle"
@@ -145,12 +145,12 @@ export default function TimelineCard({
 
               <span
                 aria-hidden="true"
-                className="z-[1] grid size-8 shrink-0 place-items-center rounded-full border-2 border-line bg-card text-[15px]"
+                className="z-[1] grid size-8 shrink-0 place-items-center rounded-full border-2 border-line bg-card text-body"
               >
                 {tag?.emoji ?? "🐾"}
               </span>
 
-              <span className="shrink-0 text-[13px] text-muted">
+              <span className="shrink-0 text-label text-muted">
                 {hhmm(entry.at_time)}
               </span>
 
