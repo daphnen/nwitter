@@ -2,17 +2,11 @@ import "server-only";
 
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { VIEWING_WINDOW_MS } from "@/lib/chat";
 import { VAPID_PUBLIC_KEY } from "./env";
 
 /** 알림 본문에 넣을 최대 길이. 길면 잘라서 뒤에 … 를 붙입니다. */
 const BODY_LIMIT = 80;
-
-/**
- * 이 시간 안에 상대가 채팅을 읽었으면 지금 보고 있는 중으로 봅니다.
- * 채팅 화면이 열려 있는 동안 chat_read_at 을 주기적으로 갱신하므로,
- * 이 창보다 최근이면 화면을 보고 있다는 뜻입니다.
- */
-const VIEWING_WINDOW_MS = 75_000;
 
 /** 설정이 안 됐으면 사람이 읽을 수 있는 사유, 정상이면 null */
 export function pushSetupProblem(): string | null {

@@ -11,7 +11,13 @@ import {
   markChatRead,
   sendMessage,
 } from "@/app/actions/chat";
-import { PAGE_SIZE, toBubbles, upsertMessage, type Pending } from "@/lib/chat";
+import {
+  CHAT_HEARTBEAT_MS,
+  PAGE_SIZE,
+  toBubbles,
+  upsertMessage,
+  type Pending,
+} from "@/lib/chat";
 import { createClient } from "@/lib/supabase/client";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 import type { Message, Profile } from "@/lib/database.types";
@@ -72,7 +78,7 @@ export default function ChatView({
     };
 
     touch();
-    const timer = setInterval(touch, 40_000);
+    const timer = setInterval(touch, CHAT_HEARTBEAT_MS);
     document.addEventListener("visibilitychange", touch);
     return () => {
       clearInterval(timer);
